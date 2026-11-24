@@ -1,0 +1,857 @@
+{
+  "status": "pass",
+  "asset_count": 70,
+  "four_by_four_sheets": 41,
+  "checks": [
+    "All 70 specified files exist and decode as PNG.",
+    "Exact canvas dimensions.",
+    "All sprites have alpha transparency.",
+    "Every grid cell is populated and has at least 20 pixels of clear edge space.",
+    "Foreground layers stay inside specified corner regions.",
+    "Magnifier centre is transparent."
+  ],
+  "godot_validation": "All 70 textures loaded successfully with expected dimensions. See tmp/cognitive-art/godot-validation.log.",
+  "scope": "File, grid and import checks; the game scene still uses its existing 3D presentation. These assets are saved for the 2D implementation.",
+  "assets": [
+    {
+      "id": 1,
+      "file": "style_key.png",
+      "dimensions": [
+        1920,
+        1080
+      ],
+      "mode": "RGB",
+      "grid_frames": 0,
+      "transparent_fraction": 0.0,
+      "sha256": "d95c05d9856bd3db2ba409d9ada042d24e2076111e14aa77b5dd5ab2dc4b6028"
+    },
+    {
+      "id": 2,
+      "file": "meadow/moti_reference.png",
+      "dimensions": [
+        2048,
+        1536
+      ],
+      "mode": "RGB",
+      "grid_frames": 0,
+      "transparent_fraction": 0.0,
+      "sha256": "52cf44885ea7f3a7d8ca16e4e59100b4c74c374e60a4c34ee1bd647316e337c9"
+    },
+    {
+      "id": 3,
+      "file": "melody/nila_reference.png",
+      "dimensions": [
+        2048,
+        1536
+      ],
+      "mode": "RGB",
+      "grid_frames": 0,
+      "transparent_fraction": 0.0,
+      "sha256": "9642a3f095948058c34d1ac975b72cc4d05264a3fc5df0b92fc69a40bad45fd1"
+    },
+    {
+      "id": 4,
+      "file": "focus/tashi_reference.png",
+      "dimensions": [
+        2048,
+        1536
+      ],
+      "mode": "RGB",
+      "grid_frames": 0,
+      "transparent_fraction": 0.0,
+      "sha256": "abe2dd8fa41d7b1f35f9bfaf2df33faece38ccb82bce33759e50a697681c4ef9"
+    },
+    {
+      "id": 5,
+      "file": "meadow/moti_idle_4x4.png",
+      "dimensions": [
+        2048,
+        2048
+      ],
+      "mode": "RGBA",
+      "grid_frames": 16,
+      "transparent_fraction": 0.7363,
+      "sha256": "dd367d688da50ae207836518c3ebd650da4b0b163147f20dc9d0c05c33b34fcb"
+    },
+    {
+      "id": 6,
+      "file": "meadow/moti_think_4x4.png",
+      "dimensions": [
+        2048,
+        2048
+      ],
+      "mode": "RGBA",
+      "grid_frames": 16,
+      "transparent_fraction": 0.7531,
+      "sha256": "fe10ae0d78e7b51943278151d978cccaf69b79a5f3f5563c19cb962d013d32b8"
+    },
+    {
+      "id": 7,
+      "file": "meadow/moti_water_4x4.png",
+      "dimensions": [
+        2048,
+        2048
+      ],
+      "mode": "RGBA",
+      "grid_frames": 16,
+      "transparent_fraction": 0.7325,
+      "sha256": "86ae53c3f59031ef5060cc355b6ee70c66dfe3c169e1d2020cdec967b5af729e"
+    },
+    {
+      "id": 8,
+      "file": "meadow/moti_happy_4x4.png",
+      "dimensions": [
+        2048,
+        2048
+      ],
+      "mode": "RGBA",
+      "grid_frames": 16,
+      "transparent_fraction": 0.7331,
+      "sha256": "e06818d3742f594daaafbd17cfafc2720d7ab1e15aa8d9e6b63e943e5596df33"
+    },
+    {
+      "id": 9,
+      "file": "meadow/moti_dance_4x4.png",
+      "dimensions": [
+        2048,
+        2048
+      ],
+      "mode": "RGBA",
+      "grid_frames": 16,
+      "transparent_fraction": 0.7439,
+      "sha256": "bbce38aa4383682c7149ba7c4875b9d9d707aaaf70be0d484848be0558efcf5e"
+    },
+    {
+      "id": 10,
+      "file": "meadow/moti_encourage_4x4.png",
+      "dimensions": [
+        2048,
+        2048
+      ],
+      "mode": "RGBA",
+      "grid_frames": 16,
+      "transparent_fraction": 0.7539,
+      "sha256": "e402001326968ca31a50d16c3d3574a6196eba1e957ca12439c727d2e24c7eed"
+    },
+    {
+      "id": 11,
+      "file": "meadow/moti_cheer_4x4.png",
+      "dimensions": [
+        2048,
+        2048
+      ],
+      "mode": "RGBA",
+      "grid_frames": 16,
+      "transparent_fraction": 0.7667,
+      "sha256": "16dd8834c12d920ccc81514f993b587d53d1e3d5d65441117ad8779b7cbc53f1"
+    },
+    {
+      "id": 12,
+      "file": "melody/nila_idle_4x4.png",
+      "dimensions": [
+        2048,
+        2048
+      ],
+      "mode": "RGBA",
+      "grid_frames": 16,
+      "transparent_fraction": 0.8997,
+      "sha256": "f188de6365e103e4070601d0ab0a885a547b3f4e47db596650bb059a39e386aa"
+    },
+    {
+      "id": 13,
+      "file": "melody/nila_conduct_4x4.png",
+      "dimensions": [
+        2048,
+        2048
+      ],
+      "mode": "RGBA",
+      "grid_frames": 16,
+      "transparent_fraction": 0.8889,
+      "sha256": "9beeb3a497a75c28b5664cbb891dc942009928e447d0122c9f08b5edc5043e5c"
+    },
+    {
+      "id": 14,
+      "file": "melody/nila_listen_4x4.png",
+      "dimensions": [
+        2048,
+        2048
+      ],
+      "mode": "RGBA",
+      "grid_frames": 16,
+      "transparent_fraction": 0.891,
+      "sha256": "f67ac8cf9d3768b7cacf112732cbc71a013cee312768241cd05c428c4ddf2f82"
+    },
+    {
+      "id": 15,
+      "file": "melody/nila_happy_4x4.png",
+      "dimensions": [
+        2048,
+        2048
+      ],
+      "mode": "RGBA",
+      "grid_frames": 16,
+      "transparent_fraction": 0.8873,
+      "sha256": "de60050cc427d1e0d96191f944daadebb834d30ba76c7c7bb563291279c35495"
+    },
+    {
+      "id": 16,
+      "file": "melody/nila_encourage_4x4.png",
+      "dimensions": [
+        2048,
+        2048
+      ],
+      "mode": "RGBA",
+      "grid_frames": 16,
+      "transparent_fraction": 0.9006,
+      "sha256": "21aa768fcf16040b5baad6a62e31b0af0e14b8bbaf3384009c948c8771c35039"
+    },
+    {
+      "id": 17,
+      "file": "melody/nila_cheer_4x4.png",
+      "dimensions": [
+        2048,
+        2048
+      ],
+      "mode": "RGBA",
+      "grid_frames": 16,
+      "transparent_fraction": 0.9179,
+      "sha256": "0df8d8090a8cbf9aa03e4a7bb35881dbeaae074cfb6607b627baa18a6023be5b"
+    },
+    {
+      "id": 18,
+      "file": "focus/tashi_idle_4x4.png",
+      "dimensions": [
+        2048,
+        2048
+      ],
+      "mode": "RGBA",
+      "grid_frames": 16,
+      "transparent_fraction": 0.8217,
+      "sha256": "bc86831a252986ffeb31c32c20c4429466ce3dbf1b1fa75542a6de9e1fa73876"
+    },
+    {
+      "id": 19,
+      "file": "focus/tashi_search_4x4.png",
+      "dimensions": [
+        2048,
+        2048
+      ],
+      "mode": "RGBA",
+      "grid_frames": 16,
+      "transparent_fraction": 0.821,
+      "sha256": "885d81bfd6f8886b849951cec009ecc20b7c0e1d46f874780950781594a52685"
+    },
+    {
+      "id": 20,
+      "file": "focus/tashi_found_4x4.png",
+      "dimensions": [
+        2048,
+        2048
+      ],
+      "mode": "RGBA",
+      "grid_frames": 16,
+      "transparent_fraction": 0.7929,
+      "sha256": "b2287fb2e86d749af08d82f08cf9b5c451741a157c8e47e1dbcbc0e77e42f460"
+    },
+    {
+      "id": 21,
+      "file": "focus/tashi_dance_4x4.png",
+      "dimensions": [
+        2048,
+        2048
+      ],
+      "mode": "RGBA",
+      "grid_frames": 16,
+      "transparent_fraction": 0.8102,
+      "sha256": "3e886207a078fc21ee44a1804e87f8cb786572ce8651deeb92eda0d4b28f370e"
+    },
+    {
+      "id": 22,
+      "file": "focus/tashi_encourage_4x4.png",
+      "dimensions": [
+        2048,
+        2048
+      ],
+      "mode": "RGBA",
+      "grid_frames": 16,
+      "transparent_fraction": 0.823,
+      "sha256": "37ad2b00c49c7b8dfd4819f75506aed4ad484dd48dc32332a30e7c5fb28bc03d"
+    },
+    {
+      "id": 23,
+      "file": "focus/tashi_cheer_4x4.png",
+      "dimensions": [
+        2048,
+        2048
+      ],
+      "mode": "RGBA",
+      "grid_frames": 16,
+      "transparent_fraction": 0.7921,
+      "sha256": "526390eb004a9d333b2f409e95f338f913909f67e97e8ac8e37a0cc392a1b327"
+    },
+    {
+      "id": 24,
+      "file": "meadow/bg_meadow_1.png",
+      "dimensions": [
+        1920,
+        1080
+      ],
+      "mode": "RGB",
+      "grid_frames": 0,
+      "transparent_fraction": 0.0,
+      "sha256": "c9c113cf2c7aef7e887c5a36233b19f3c255a49ef998a6f4b91b3fdf9983e2f2"
+    },
+    {
+      "id": 25,
+      "file": "meadow/bg_meadow_2.png",
+      "dimensions": [
+        1920,
+        1080
+      ],
+      "mode": "RGB",
+      "grid_frames": 0,
+      "transparent_fraction": 0.0,
+      "sha256": "1c8c5391006229e56ce33c845b142ed3e95c58d32b1b56535118f461997b0b1c"
+    },
+    {
+      "id": 26,
+      "file": "meadow/bg_meadow_3.png",
+      "dimensions": [
+        1920,
+        1080
+      ],
+      "mode": "RGB",
+      "grid_frames": 0,
+      "transparent_fraction": 0.0,
+      "sha256": "af6eeb4216bf48ec784db8d8a0226596b42791b6286450f432ea913cc48c659f"
+    },
+    {
+      "id": 27,
+      "file": "melody/bg_stream_1.png",
+      "dimensions": [
+        1920,
+        1080
+      ],
+      "mode": "RGB",
+      "grid_frames": 0,
+      "transparent_fraction": 0.0,
+      "sha256": "d7763111d9b1212a2a8072ba84a698419f6f11028570f953573215ab38944d86"
+    },
+    {
+      "id": 28,
+      "file": "melody/bg_stream_2.png",
+      "dimensions": [
+        1920,
+        1080
+      ],
+      "mode": "RGB",
+      "grid_frames": 0,
+      "transparent_fraction": 0.0,
+      "sha256": "08a9ff6471f2f68291d5b292c364ab63054e6dd3b1cc77aca8ae7e913cd711a9"
+    },
+    {
+      "id": 29,
+      "file": "melody/bg_stream_3.png",
+      "dimensions": [
+        1920,
+        1080
+      ],
+      "mode": "RGB",
+      "grid_frames": 0,
+      "transparent_fraction": 0.0,
+      "sha256": "62be15cc43e49eb67f97802df9c155e59ef84a154c460977b56ea2ee3e581339"
+    },
+    {
+      "id": 30,
+      "file": "focus/bg_forest_1.png",
+      "dimensions": [
+        1920,
+        1080
+      ],
+      "mode": "RGB",
+      "grid_frames": 0,
+      "transparent_fraction": 0.0,
+      "sha256": "67f0a8079d5a2c7228a9f7fbbfd9f56eee9ccc0213d87c780999e5652e023569"
+    },
+    {
+      "id": 31,
+      "file": "focus/bg_forest_2.png",
+      "dimensions": [
+        1920,
+        1080
+      ],
+      "mode": "RGB",
+      "grid_frames": 0,
+      "transparent_fraction": 0.0,
+      "sha256": "e00d3ef486c085f810ba079bcc9d5a7dd5abc6ee619406e431963115b1b273d6"
+    },
+    {
+      "id": 32,
+      "file": "focus/bg_forest_3.png",
+      "dimensions": [
+        1920,
+        1080
+      ],
+      "mode": "RGB",
+      "grid_frames": 0,
+      "transparent_fraction": 0.0,
+      "sha256": "5f2fc22c15e6b6412a5963e418a0995e2456990bea2f549ac1e6105decbf2f71"
+    },
+    {
+      "id": 33,
+      "file": "meadow/fg_meadow.png",
+      "dimensions": [
+        1920,
+        1080
+      ],
+      "mode": "RGBA",
+      "grid_frames": 0,
+      "transparent_fraction": 0.9548,
+      "sha256": "1674c0145b56b6fab92b507ed73ca285802145567a5294152a1526e8ff44959f"
+    },
+    {
+      "id": 34,
+      "file": "melody/fg_stream.png",
+      "dimensions": [
+        1920,
+        1080
+      ],
+      "mode": "RGBA",
+      "grid_frames": 0,
+      "transparent_fraction": 0.9604,
+      "sha256": "75d910b6ccfa8ca0079cb482906f0d5da277fcb40c6e64b66dd6bedb9d366d52"
+    },
+    {
+      "id": 35,
+      "file": "focus/fg_forest.png",
+      "dimensions": [
+        1920,
+        1080
+      ],
+      "mode": "RGBA",
+      "grid_frames": 0,
+      "transparent_fraction": 0.9594,
+      "sha256": "76203b99b8e5a64bd6060683d15977dfa06862ec22f03fdf9890ea6cf284f59b"
+    },
+    {
+      "id": 36,
+      "file": "meadow/cover_lotus_4x4.png",
+      "dimensions": [
+        2048,
+        2048
+      ],
+      "mode": "RGBA",
+      "grid_frames": 16,
+      "transparent_fraction": 0.531,
+      "sha256": "34e97f7ddc648596c44b94c3a93eb5608cc0ae13334de0c9dbbed698327c24d5"
+    },
+    {
+      "id": 37,
+      "file": "meadow/cover_marigold_4x4.png",
+      "dimensions": [
+        2048,
+        2048
+      ],
+      "mode": "RGBA",
+      "grid_frames": 16,
+      "transparent_fraction": 0.5934,
+      "sha256": "d4ec8d9ccff3a4a6d97337882a21e42f303c6e6ac569395273ccc6407b2575b4"
+    },
+    {
+      "id": 38,
+      "file": "meadow/cover_hibiscus_4x4.png",
+      "dimensions": [
+        2048,
+        2048
+      ],
+      "mode": "RGBA",
+      "grid_frames": 16,
+      "transparent_fraction": 0.5681,
+      "sha256": "8d940597386f2623008a8bbffe6c7e64ebd10ceabd834deae3464e878c8fd707"
+    },
+    {
+      "id": 39,
+      "file": "melody/musicians_reference.png",
+      "dimensions": [
+        3072,
+        768
+      ],
+      "mode": "RGB",
+      "grid_frames": 0,
+      "transparent_fraction": 0.0,
+      "sha256": "3a264e46a317889805f1a5671daa72ac160fbba72b28086cbb57b55fda0da3b5"
+    },
+    {
+      "id": 40,
+      "file": "melody/robin_4x4.png",
+      "dimensions": [
+        2048,
+        2048
+      ],
+      "mode": "RGBA",
+      "grid_frames": 16,
+      "transparent_fraction": 0.738,
+      "sha256": "19d6caf374e3da803ab338d1691cd2b836c43fed1353e6c805553fde5b42d67a"
+    },
+    {
+      "id": 41,
+      "file": "melody/frog_4x4.png",
+      "dimensions": [
+        2048,
+        2048
+      ],
+      "mode": "RGBA",
+      "grid_frames": 16,
+      "transparent_fraction": 0.7031,
+      "sha256": "bf59e89afce16a636f64710da5d1fca004196e358b24d92a10480185e8b54361"
+    },
+    {
+      "id": 42,
+      "file": "melody/owl_4x4.png",
+      "dimensions": [
+        2048,
+        2048
+      ],
+      "mode": "RGBA",
+      "grid_frames": 16,
+      "transparent_fraction": 0.722,
+      "sha256": "464b45573d1a62a118d2eacfea6be757e6ceb71ed799e7d15073438aa2f8be86"
+    },
+    {
+      "id": 43,
+      "file": "melody/duckling_4x4.png",
+      "dimensions": [
+        2048,
+        2048
+      ],
+      "mode": "RGBA",
+      "grid_frames": 16,
+      "transparent_fraction": 0.7781,
+      "sha256": "42d270c6dea0890d6321a38b9deaab08d93fa99daf89eefca7601d6dbfe317ae"
+    },
+    {
+      "id": 44,
+      "file": "melody/squirrel_4x4.png",
+      "dimensions": [
+        2048,
+        2048
+      ],
+      "mode": "RGBA",
+      "grid_frames": 16,
+      "transparent_fraction": 0.723,
+      "sha256": "6dc3ae3ef87dd5e793b51fae6df836c4050a8008952c44561e0b7d77ec3d9496"
+    },
+    {
+      "id": 45,
+      "file": "melody/rabbit_4x4.png",
+      "dimensions": [
+        2048,
+        2048
+      ],
+      "mode": "RGBA",
+      "grid_frames": 16,
+      "transparent_fraction": 0.818,
+      "sha256": "ea648b8b22792ca8fd8dce8034f6f137f316ed3a854449a14198087b4775466b"
+    },
+    {
+      "id": 46,
+      "file": "melody/stones.png",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "mode": "RGBA",
+      "grid_frames": 6,
+      "transparent_fraction": 0.4896,
+      "sha256": "26a68c4f4326ec8a36b6e5a1c576824fc8856e5eab8d7021db8190159e676f63"
+    },
+    {
+      "id": 47,
+      "file": "focus/lens_frame.png",
+      "dimensions": [
+        1024,
+        1024
+      ],
+      "mode": "RGBA",
+      "grid_frames": 0,
+      "transparent_fraction": 0.8458,
+      "sha256": "170b1d8ac0b2b5eca696239c7bcf3a7a81c1d3029c676bc64baf6eac0602cfb6"
+    },
+    {
+      "id": 48,
+      "file": "focus/holder_wood.png",
+      "dimensions": [
+        512,
+        512
+      ],
+      "mode": "RGBA",
+      "grid_frames": 0,
+      "transparent_fraction": 0.3488,
+      "sha256": "c11c982b4495d0ad8168a4275c7f9378210ee782da9cc43c8a8efd6d5696dbfa"
+    },
+    {
+      "id": 49,
+      "file": "focus/holder_leaf.png",
+      "dimensions": [
+        512,
+        512
+      ],
+      "mode": "RGBA",
+      "grid_frames": 0,
+      "transparent_fraction": 0.3532,
+      "sha256": "0ccf6fbd52ac306a0a8a72813fd6d07d3a49e4fb96b9a10740069a6cd7a03d01"
+    },
+    {
+      "id": 50,
+      "file": "objects/fruits_4x4.png",
+      "dimensions": [
+        2048,
+        2048
+      ],
+      "mode": "RGBA",
+      "grid_frames": 16,
+      "transparent_fraction": 0.6798,
+      "sha256": "d45bfae75ed075a8fa9497309e0e4e264e433d6a1242b7a0581ab31bca23db3e"
+    },
+    {
+      "id": 51,
+      "file": "objects/home_4x4.png",
+      "dimensions": [
+        2048,
+        2048
+      ],
+      "mode": "RGBA",
+      "grid_frames": 16,
+      "transparent_fraction": 0.7177,
+      "sha256": "84ee2d222df89132929f263efbe2d3c0023f032e89806bc438d529c5478975af"
+    },
+    {
+      "id": 52,
+      "file": "objects/nature_4x4.png",
+      "dimensions": [
+        2048,
+        2048
+      ],
+      "mode": "RGBA",
+      "grid_frames": 16,
+      "transparent_fraction": 0.6554,
+      "sha256": "6dba4e46e99b4f1cdc50ff89b615de00e44146854d4897e182314399c2c998e3"
+    },
+    {
+      "id": 53,
+      "file": "objects/creatures_4x4.png",
+      "dimensions": [
+        2048,
+        2048
+      ],
+      "mode": "RGBA",
+      "grid_frames": 16,
+      "transparent_fraction": 0.7323,
+      "sha256": "2862e8a5e9046d6784684e8688205a0b2ab0b689c6e81b100232bc1d67d90c7c"
+    },
+    {
+      "id": 54,
+      "file": "objects/music_4x4.png",
+      "dimensions": [
+        2048,
+        2048
+      ],
+      "mode": "RGBA",
+      "grid_frames": 16,
+      "transparent_fraction": 0.7208,
+      "sha256": "d89300b2cff04808cf42ac288c563f3dce052aa56f27a56ca2ab5abcb29da4cf"
+    },
+    {
+      "id": 55,
+      "file": "objects/travel_4x4.png",
+      "dimensions": [
+        2048,
+        2048
+      ],
+      "mode": "RGBA",
+      "grid_frames": 16,
+      "transparent_fraction": 0.7035,
+      "sha256": "fc85dd018d88e51cd0bfc35dafb610ae21fe5c19a5c3cf8662b11b7893bdff3c"
+    },
+    {
+      "id": 56,
+      "file": "objects/lookalike_a_4x4.png",
+      "dimensions": [
+        2048,
+        2048
+      ],
+      "mode": "RGBA",
+      "grid_frames": 16,
+      "transparent_fraction": 0.7467,
+      "sha256": "32c59ddbc9a723787ff1835325eb44ea809c6c0e16aef413fccc35569c35357e"
+    },
+    {
+      "id": 57,
+      "file": "objects/lookalike_b_4x4.png",
+      "dimensions": [
+        2048,
+        2048
+      ],
+      "mode": "RGBA",
+      "grid_frames": 16,
+      "transparent_fraction": 0.7266,
+      "sha256": "b3866403a3f95f79e730848d42376e2c6250c89afeba90ef4e49a17961c953ea"
+    },
+    {
+      "id": 58,
+      "file": "meadow/ambient_4x4.png",
+      "dimensions": [
+        2048,
+        2048
+      ],
+      "mode": "RGBA",
+      "grid_frames": 16,
+      "transparent_fraction": 0.7885,
+      "sha256": "e63a1033ea91544a3774c6700ba71a3ba69d7333641fb10d2b361d52f6bb50e8"
+    },
+    {
+      "id": 59,
+      "file": "melody/ambient_4x4.png",
+      "dimensions": [
+        2048,
+        2048
+      ],
+      "mode": "RGBA",
+      "grid_frames": 16,
+      "transparent_fraction": 0.8143,
+      "sha256": "8d583dd933ae53371f6e1567faa8745176db200d759c982ece143ce6fc38f390"
+    },
+    {
+      "id": 60,
+      "file": "focus/ambient_4x4.png",
+      "dimensions": [
+        2048,
+        2048
+      ],
+      "mode": "RGBA",
+      "grid_frames": 16,
+      "transparent_fraction": 0.7749,
+      "sha256": "bdf199c62b5995ba4f8451ef0f04b7fd79ad1266fefa63566ef3094cc728806a"
+    },
+    {
+      "id": 61,
+      "file": "shared/particles_4x4.png",
+      "dimensions": [
+        1024,
+        1024
+      ],
+      "mode": "RGBA",
+      "grid_frames": 16,
+      "transparent_fraction": 0.8445,
+      "sha256": "03d079dad3b9b6934bc543497a29f8c1479480665c6726884e14a4e39d6552d3"
+    },
+    {
+      "id": 62,
+      "file": "shared/ui_bar.png",
+      "dimensions": [
+        1920,
+        120
+      ],
+      "mode": "RGBA",
+      "grid_frames": 0,
+      "transparent_fraction": 0.0371,
+      "sha256": "77aeeb990119e489b84f29adde0f4ddf4edd0ff690016bbd4879cb4f0f83422f"
+    },
+    {
+      "id": 63,
+      "file": "shared/ui_panel.png",
+      "dimensions": [
+        1200,
+        800
+      ],
+      "mode": "RGBA",
+      "grid_frames": 0,
+      "transparent_fraction": 0.0028,
+      "sha256": "294f4b8c6030d2216e7f4eda3122cd32b7a781ac13050fee034e31c2a89a44a3"
+    },
+    {
+      "id": 64,
+      "file": "shared/ui_buttons.png",
+      "dimensions": [
+        640,
+        640
+      ],
+      "mode": "RGBA",
+      "grid_frames": 0,
+      "transparent_fraction": 0.3369,
+      "sha256": "dce0467d1d06659b883cc6330eaa42b4c02478dcdd0e352df17b0f64fb5a97ec"
+    },
+    {
+      "id": 65,
+      "file": "shared/ui_card.png",
+      "dimensions": [
+        560,
+        720
+      ],
+      "mode": "RGBA",
+      "grid_frames": 0,
+      "transparent_fraction": 0.5072,
+      "sha256": "aa5f23b8d407b1ec59e29bde53451366a528cc611b7ec4f702df28b4e8cc4fc7"
+    },
+    {
+      "id": 66,
+      "file": "shared/ui_icons_4x4.png",
+      "dimensions": [
+        1024,
+        1024
+      ],
+      "mode": "RGBA",
+      "grid_frames": 16,
+      "transparent_fraction": 0.8051,
+      "sha256": "ad3a7eda446e0bd61571583f2a3b6a3065639326bb62c7b7c34df897c2173cab"
+    },
+    {
+      "id": 67,
+      "file": "meadow/layout_reference.png",
+      "dimensions": [
+        1920,
+        1080
+      ],
+      "mode": "RGB",
+      "grid_frames": 0,
+      "transparent_fraction": 0.0,
+      "sha256": "5eba41b79560896010d7e55fc01ced5f213e3f793a0fc4fb004c7fe52315f403"
+    },
+    {
+      "id": 68,
+      "file": "melody/layout_reference.png",
+      "dimensions": [
+        1920,
+        1080
+      ],
+      "mode": "RGB",
+      "grid_frames": 0,
+      "transparent_fraction": 0.0,
+      "sha256": "78768fee11984928e5677b044e7b006dcd3a44f4dad025f0857c46805f8f4108"
+    },
+    {
+      "id": 69,
+      "file": "focus/layout_reference.png",
+      "dimensions": [
+        1920,
+        1080
+      ],
+      "mode": "RGB",
+      "grid_frames": 0,
+      "transparent_fraction": 0.0,
+      "sha256": "57c6b76a0482d4683956a129d9e36b013df3959e4e0a927e34bd952d599e7ddf"
+    },
+    {
+      "id": 70,
+      "file": "shared/layout_menu.png",
+      "dimensions": [
+        1920,
+        1080
+      ],
+      "mode": "RGB",
+      "grid_frames": 0,
+      "transparent_fraction": 0.0,
+      "sha256": "fc2a67860d1624986b114360d6ed35b566391b0679b7820adeace6d7717a75ac"
+    }
+  ]
+}

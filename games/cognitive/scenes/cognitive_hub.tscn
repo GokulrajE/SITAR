@@ -1,53 +1,22 @@
 [gd_scene format=3]
 
-[ext_resource type="PackedScene" path="res://scenes/environments/night_themes.tscn" id="night"]
-
 [ext_resource type="Script" path="res://games/cognitive/scripts/cognitive_hub.gd" id="logic"]
-[ext_resource type="Theme" path="res://assets/themes/cognitive_theme.tres" id="theme"]
-[ext_resource type="PackedScene" path="res://games/cognitive/scenes/3d/cognitive_tile.tscn" id="tile"]
-[ext_resource type="PackedScene" path="res://games/adventure/scenes/3d/adventure_studio.tscn" id="studio"]
+[ext_resource type="Theme" path="res://assets/themes/garden_2d_theme.tres" id="theme"]
+[ext_resource type="Script" path="res://games/cognitive/scripts/cognitive_ambient.gd" id="ambient"]
+[ext_resource type="Script" path="res://games/cognitive/scripts/cognitive_host.gd" id="host"]
+[ext_resource type="Script" path="res://games/cognitive/scripts/cognitive_tile_2d.gd" id="tile"]
+[ext_resource type="Script" path="res://games/cognitive/scripts/cognitive_steps.gd" id="steps"]
+[ext_resource type="Script" path="res://games/cognitive/scripts/cognitive_fx.gd" id="fx"]
+[ext_resource type="Script" path="res://games/cognitive/scripts/cognitive_card.gd" id="card"]
 [ext_resource type="PackedScene" path="res://scenes/ui/display_controls.tscn" id="display"]
+[ext_resource type="Texture2D" path="res://assets/images/cognitive/shared/ui_bar.png" id="bar"]
+[ext_resource type="Texture2D" path="res://assets/images/cognitive/shared/ui_panel.png" id="panel"]
+[ext_resource type="Texture2D" path="res://assets/images/cognitive/shared/ui_card.png" id="frame"]
 [ext_resource type="AudioStream" path="res://assets/audio/click_001.ogg" id="click"]
 [ext_resource type="AudioStream" path="res://assets/audio/confirmation_001.ogg" id="success"]
 
-[sub_resource type="StandardMaterial3D" id="floor_mat"]
-albedo_color = Color(0.09, 0.15, 0.25, 1)
-roughness = 0.75
-
-[sub_resource type="PlaneMesh" id="floor"]
-material = SubResource("floor_mat")
-size = Vector2(80, 80)
-
-[sub_resource type="StyleBoxFlat" id="panel"]
-bg_color = Color(0.96, 0.94, 0.88, 0.99)
-corner_radius_top_left = 32
-corner_radius_top_right = 32
-corner_radius_bottom_left = 32
-corner_radius_bottom_right = 32
-
-
-[sub_resource type="StyleBoxFlat" id="memory"]
-bg_color = Color(0.18, 0.47, 0.44, 1)
-corner_radius_top_left = 22
-corner_radius_top_right = 22
-corner_radius_bottom_left = 22
-corner_radius_bottom_right = 22
-
-[sub_resource type="StyleBoxFlat" id="melody"]
-bg_color = Color(0.44, 0.31, 0.63, 1)
-corner_radius_top_left = 22
-corner_radius_top_right = 22
-corner_radius_bottom_left = 22
-corner_radius_bottom_right = 22
-
-[sub_resource type="StyleBoxFlat" id="focus_card"]
-bg_color = Color(0.65, 0.35, 0.13, 1)
-corner_radius_top_left = 22
-corner_radius_top_right = 22
-corner_radius_bottom_left = 22
-corner_radius_bottom_right = 22
-
 [node name="CognitiveGarden" type="Control"]
+texture_filter = 4
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -58,25 +27,47 @@ mouse_filter = 2
 theme = ExtResource("theme")
 script = ExtResource("logic")
 
-[node name="World" type="Node3D" parent="."]
-[node name="Studio" parent="World" instance=ExtResource("studio")]
-[node name="Camera" type="Camera3D" parent="World"]
-position = Vector3(0, 18, 16)
-rotation_degrees = Vector3(-48.366, 0, 0)
-projection = 1
-size = 19.5
-keep_aspect = 0
-current = true
-[node name="NightThemes" parent="World" instance=ExtResource("night")]
+[node name="World" type="Control" parent="."]
 unique_name_in_owner = true
-position = Vector3(0, 0, 0.8)
-scale = Vector3(0.68, 0.68, 0.68)
-[node name="Board" type="Node3D" parent="World"]
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+
+[node name="Background" type="TextureRect" parent="World"]
 unique_name_in_owner = true
-[node name="TargetIcon" parent="World" instance=ExtResource("tile")]
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Ambient" type="Node2D" parent="World"]
 unique_name_in_owner = true
-position = Vector3(0, 0, -3.9)
-scale = Vector3(0.62, 0.62, 0.62)
+script = ExtResource("ambient")
+
+[node name="Host" type="Node2D" parent="World"]
+unique_name_in_owner = true
+script = ExtResource("host")
+
+[node name="TargetIcon" type="Node2D" parent="World"]
+unique_name_in_owner = true
+script = ExtResource("tile")
+kind = 3
+side = 500.0
+position = Vector2(310, 345)
+visible = false
+
+[node name="Board" type="Node2D" parent="World"]
+unique_name_in_owner = true
+
+[node name="Steps" type="Node2D" parent="World"]
+unique_name_in_owner = true
+script = ExtResource("steps")
+position = Vector2(1170, 182)
 visible = false
 
 [node name="Setup" type="Control" parent="."]
@@ -87,106 +78,305 @@ offset_right = 1920.0
 offset_bottom = 1080.0
 mouse_filter = 2
 
-[node name="Card" type="Panel" parent="Setup"]
-offset_left = 280.0
-offset_top = 180.0
-offset_right = 1640.0
-offset_bottom = 980.0
-theme_override_styles/panel = SubResource("panel")
+[node name="Veil" type="ColorRect" parent="Setup"]
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+color = Color(1, 0.98, 0.9, 0.35)
 
-[node name="Title" type="Label" parent="Setup"]
-unique_name_in_owner = true
-offset_left = 790.0
-offset_top = 240.0
-offset_right = 1570.0
-offset_bottom = 318.0
-text = "Memory Meadow"
-theme_override_font_sizes/font_size = 46
-horizontal_alignment = 1
-
-[node name="Hint" type="Label" parent="Setup"]
-unique_name_in_owner = true
-offset_left = 790.0
-offset_top = 330.0
-offset_right = 1570.0
-offset_bottom = 410.0
-text = ""
-horizontal_alignment = 1
-theme_override_font_sizes/font_size = 25
-
-autowrap_mode = 3
-
-[node name="GameSelect" type="OptionButton" parent="Setup"]
-unique_name_in_owner = true
-offset_left = 560.0
-offset_top = 450.0
-offset_right = 1040.0
-offset_bottom = 520.0
-item_count = 3
-popup/item_0/text = "Memory Meadow"
-popup/item_0/id = 0
-popup/item_1/text = "Melody Steps"
-popup/item_1/id = 1
-popup/item_2/text = "Focus Finder"
-popup/item_2/id = 2
-
-visible = false
-
-[node name="Difficulty" type="OptionButton" parent="Setup"]
-unique_name_in_owner = true
-offset_left = 840.0
-offset_top = 445.0
-offset_right = 1520.0
-offset_bottom = 510.0
-item_count = 3
-popup/item_0/text = "Level 1 · Discover"
-popup/item_0/id = 0
-popup/item_1/text = "Level 2 · Develop"
-popup/item_1/id = 1
-popup/item_2/text = "Level 3 · Challenge"
-popup/item_2/id = 2
-
-[node name="Start" type="Button" parent="Setup"]
-unique_name_in_owner = true
-offset_left = 840.0
-offset_top = 600.0
-offset_right = 1520.0
-offset_bottom = 675.0
-text = "Start session"
-
-
-[node name="Motion" type="CheckButton" parent="Setup"]
-unique_name_in_owner = true
-offset_left = 840.0
-offset_top = 695.0
-offset_right = 1520.0
-offset_bottom = 745.0
-text = "Reduced motion"
-
-
-[node name="Resources" type="Button" parent="Setup"]
-unique_name_in_owner = true
-offset_left = 840.0
-offset_top = 770.0
-offset_right = 1520.0
-offset_bottom = 824.0
-text = "About cognitive practice"
-
+[node name="Banner" type="TextureRect" parent="Setup"]
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 1920.0
+offset_bottom = 112.0
+mouse_filter = 2
+texture = ExtResource("bar")
+expand_mode = 1
 
 [node name="Home" type="Button" parent="Setup"]
 unique_name_in_owner = true
-offset_left = 340.0
-offset_top = 815.0
-offset_right = 730.0
-offset_bottom = 880.0
-text = "Back to game library"
+offset_left = 26.0
+offset_top = 11.0
+offset_right = 116.0
+offset_bottom = 101.0
+theme_type_variation = &"IconButton"
+tooltip_text = "Back to game library"
+expand_icon = true
+icon_alignment = 1
 
+[node name="HubHeading" type="Label" parent="Setup"]
+unique_name_in_owner = true
+offset_left = 360.0
+offset_top = 14.0
+offset_right = 1560.0
+offset_bottom = 98.0
+mouse_filter = 2
+text = "Choose your practice"
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 44
+
+[node name="Sound" type="Button" parent="Setup"]
+unique_name_in_owner = true
+offset_left = 1804.0
+offset_top = 11.0
+offset_right = 1894.0
+offset_bottom = 101.0
+theme_type_variation = &"IconButton"
+tooltip_text = "Sound"
+expand_icon = true
+icon_alignment = 1
+toggle_mode = true
+
+[node name="MemoryCard" type="Button" parent="Setup"]
+unique_name_in_owner = true
+offset_left = 238.0
+offset_top = 128.0
+offset_right = 686.0
+offset_bottom = 704.0
+theme_type_variation = &"CardButton"
+script = ExtResource("card")
+mode = 0
+heading = "Memory Meadow"
+line = "Open the flowers and find the matching pairs."
+
+[node name="Window" type="Control" parent="Setup/MemoryCard"]
+offset_left = 44.0
+offset_top = 58.0
+offset_right = 404.0
+offset_bottom = 362.0
+mouse_filter = 2
+
+[node name="Host" type="Node2D" parent="Setup/MemoryCard"]
+script = ExtResource("host")
+position = Vector2(224, 348)
+
+[node name="Frame" type="TextureRect" parent="Setup/MemoryCard"]
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 448.0
+offset_bottom = 576.0
+mouse_filter = 2
+texture = ExtResource("frame")
+expand_mode = 1
+
+[node name="Heading" type="Label" parent="Setup/MemoryCard"]
+offset_left = 40.0
+offset_top = 376.0
+offset_right = 408.0
+offset_bottom = 432.0
+mouse_filter = 2
+text = ""
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 38
+
+[node name="Line" type="Label" parent="Setup/MemoryCard"]
+offset_left = 52.0
+offset_top = 434.0
+offset_right = 396.0
+offset_bottom = 534.0
+mouse_filter = 2
+text = ""
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 25
+autowrap_mode = 3
+
+[node name="MelodyCard" type="Button" parent="Setup"]
+unique_name_in_owner = true
+offset_left = 736.0
+offset_top = 128.0
+offset_right = 1184.0
+offset_bottom = 704.0
+theme_type_variation = &"CardButton"
+script = ExtResource("card")
+mode = 1
+heading = "Melody Steps"
+line = "Watch the animals play, then repeat their order."
+
+[node name="Window" type="Control" parent="Setup/MelodyCard"]
+offset_left = 44.0
+offset_top = 58.0
+offset_right = 404.0
+offset_bottom = 362.0
+mouse_filter = 2
+
+[node name="Host" type="Node2D" parent="Setup/MelodyCard"]
+script = ExtResource("host")
+position = Vector2(224, 348)
+
+[node name="Frame" type="TextureRect" parent="Setup/MelodyCard"]
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 448.0
+offset_bottom = 576.0
+mouse_filter = 2
+texture = ExtResource("frame")
+expand_mode = 1
+
+[node name="Heading" type="Label" parent="Setup/MelodyCard"]
+offset_left = 40.0
+offset_top = 376.0
+offset_right = 408.0
+offset_bottom = 432.0
+mouse_filter = 2
+text = ""
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 38
+
+[node name="Line" type="Label" parent="Setup/MelodyCard"]
+offset_left = 52.0
+offset_top = 434.0
+offset_right = 396.0
+offset_bottom = 534.0
+mouse_filter = 2
+text = ""
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 25
+autowrap_mode = 3
+
+[node name="FocusCard" type="Button" parent="Setup"]
+unique_name_in_owner = true
+offset_left = 1234.0
+offset_top = 128.0
+offset_right = 1682.0
+offset_bottom = 704.0
+theme_type_variation = &"CardButton"
+script = ExtResource("card")
+mode = 2
+heading = "Focus Finder"
+line = "Find the object shown in the magnifying glass."
+
+[node name="Window" type="Control" parent="Setup/FocusCard"]
+offset_left = 44.0
+offset_top = 58.0
+offset_right = 404.0
+offset_bottom = 362.0
+mouse_filter = 2
+
+[node name="Host" type="Node2D" parent="Setup/FocusCard"]
+script = ExtResource("host")
+position = Vector2(224, 348)
+
+[node name="Frame" type="TextureRect" parent="Setup/FocusCard"]
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 448.0
+offset_bottom = 576.0
+mouse_filter = 2
+texture = ExtResource("frame")
+expand_mode = 1
+
+[node name="Heading" type="Label" parent="Setup/FocusCard"]
+offset_left = 40.0
+offset_top = 376.0
+offset_right = 408.0
+offset_bottom = 432.0
+mouse_filter = 2
+text = ""
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 38
+
+[node name="Line" type="Label" parent="Setup/FocusCard"]
+offset_left = 52.0
+offset_top = 434.0
+offset_right = 396.0
+offset_bottom = 534.0
+mouse_filter = 2
+text = ""
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 25
+autowrap_mode = 3
+
+[node name="Choices" type="Panel" parent="Setup"]
+offset_left = 150.0
+offset_top = 728.0
+offset_right = 1770.0
+offset_bottom = 1060.0
+mouse_filter = 2
+
+[node name="Level1" type="Button" parent="Setup"]
+unique_name_in_owner = true
+offset_left = 440.0
+offset_top = 748.0
+offset_right = 776.0
+offset_bottom = 843.0
+theme_type_variation = &"BlueButton"
+text = "1  ·  Discover"
+
+[node name="Level2" type="Button" parent="Setup"]
+unique_name_in_owner = true
+offset_left = 792.0
+offset_top = 748.0
+offset_right = 1128.0
+offset_bottom = 843.0
+theme_type_variation = &"BlueButton"
+text = "2  ·  Develop"
+
+[node name="Level3" type="Button" parent="Setup"]
+unique_name_in_owner = true
+offset_left = 1144.0
+offset_top = 748.0
+offset_right = 1480.0
+offset_bottom = 843.0
+theme_type_variation = &"BlueButton"
+text = "3  ·  Challenge"
+
+[node name="LevelDetails" type="Label" parent="Setup"]
+unique_name_in_owner = true
+offset_left = 400.0
+offset_top = 850.0
+offset_right = 1520.0
+offset_bottom = 894.0
+mouse_filter = 2
+text = ""
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 26
+
+[node name="Start" type="Button" parent="Setup"]
+unique_name_in_owner = true
+offset_left = 745.0
+offset_top = 905.0
+offset_right = 1175.0
+offset_bottom = 1027.0
+text = "Start"
+theme_override_font_sizes/font_size = 44
+
+[node name="Motion" type="Button" parent="Setup"]
+unique_name_in_owner = true
+offset_left = 200.0
+offset_top = 885.0
+offset_right = 518.0
+offset_bottom = 975.0
+theme_type_variation = &"BlueButton"
+theme_override_font_sizes/font_size = 25
+toggle_mode = true
+text = "Motion: full"
+
+[node name="Resources" type="Button" parent="Setup"]
+unique_name_in_owner = true
+offset_left = 200.0
+offset_top = 985.0
+offset_right = 518.0
+offset_bottom = 1041.0
+theme_type_variation = &"LinkText"
+text = "About cognitive practice"
 
 [node name="Display" parent="Setup" instance=ExtResource("display")]
-offset_left = 840.0
-offset_top = 860.0
-offset_right = 1520.0
-offset_bottom = 930.0
+unique_name_in_owner = true
+offset_left = 1402.0
+offset_top = 885.0
+offset_right = 1720.0
+offset_bottom = 975.0
+alignment = 2
 
 [node name="HUD" type="Control" parent="."]
 unique_name_in_owner = true
@@ -196,122 +386,252 @@ offset_right = 1920.0
 offset_bottom = 1080.0
 mouse_filter = 2
 
-[node name="ScoreCaption" type="Label" parent="HUD"]
-unique_name_in_owner = true
-offset_left = 64.0
-offset_top = 26.0
-offset_right = 560.0
-offset_bottom = 60.0
-text = "SCORE   /   TIME"
-theme_override_font_sizes/font_size = 20
+[node name="Bar" type="TextureRect" parent="HUD"]
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 1920.0
+offset_bottom = 120.0
+mouse_filter = 2
+texture = ExtResource("bar")
+expand_mode = 1
 
-theme_override_colors/font_color = Color(0.98, 0.95, 0.85, 1)
+[node name="Leave" type="Button" parent="HUD"]
+unique_name_in_owner = true
+offset_left = 28.0
+offset_top = 15.0
+offset_right = 118.0
+offset_bottom = 105.0
+theme_type_variation = &"IconButton"
+tooltip_text = "Leave the game"
+expand_icon = true
+icon_alignment = 1
+
+[node name="ScoreIcon" type="TextureRect" parent="HUD"]
+unique_name_in_owner = true
+offset_left = 142.0
+offset_top = 32.0
+offset_right = 198.0
+offset_bottom = 88.0
+mouse_filter = 2
+expand_mode = 1
 
 [node name="Stats" type="Label" parent="HUD"]
 unique_name_in_owner = true
-offset_left = 64.0
-offset_top = 58.0
-offset_right = 760.0
-offset_bottom = 125.0
-text = ""
-theme_override_font_sizes/font_size = 46
-
-theme_override_colors/font_color = Color(0.98, 0.95, 0.85, 1)
-
-[node name="Status" type="Label" parent="HUD"]
-unique_name_in_owner = true
-offset_left = 580.0
-offset_top = 42.0
-offset_right = 1380.0
-offset_bottom = 100.0
-text = ""
-horizontal_alignment = 1
-theme_override_font_sizes/font_size = 25
-
-theme_override_colors/font_color = Color(0.98, 0.95, 0.85, 1)
-
-[node name="Pause" type="Button" parent="HUD"]
-unique_name_in_owner = true
-offset_left = 1430.0
-offset_top = 36.0
-offset_right = 1560.0
+offset_left = 204.0
+offset_top = 24.0
+offset_right = 334.0
 offset_bottom = 96.0
-text = "Pause"
-
-
-[node name="Stop" type="Button" parent="HUD"]
-unique_name_in_owner = true
-offset_left = 1576.0
-offset_top = 36.0
-offset_right = 1696.0
-offset_bottom = 96.0
-text = "Stop"
-
-
-[node name="Mute" type="Button" parent="HUD"]
-unique_name_in_owner = true
-offset_left = 1712.0
-offset_top = 36.0
-offset_right = 1856.0
-offset_bottom = 96.0
-text = "Mute"
-toggle_mode = true
-
-[node name="Progress" type="ProgressBar" parent="HUD"]
-unique_name_in_owner = true
-offset_left = 64.0
-offset_top = 132.0
-offset_right = 500.0
-offset_bottom = 140.0
-show_percentage = false
 mouse_filter = 2
-
-[node name="Overlay" type="Panel" parent="."]
-unique_name_in_owner = true
-offset_left = 440.0
-offset_top = 210.0
-offset_right = 1480.0
-offset_bottom = 890.0
-visible = false
-theme_override_styles/panel = SubResource("panel")
-
-[node name="OverlayTitle" type="Label" parent="Overlay"]
-unique_name_in_owner = true
-offset_left = 60.0
-offset_top = 60.0
-offset_right = 980.0
-offset_bottom = 140.0
 text = ""
-horizontal_alignment = 1
-theme_override_font_sizes/font_size = 48
+horizontal_alignment = 0
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 40
 
-[node name="OverlayText" type="Label" parent="Overlay"]
+[node name="LevelHUD" type="Label" parent="HUD"]
 unique_name_in_owner = true
-offset_left = 60.0
-offset_top = 155.0
-offset_right = 980.0
-offset_bottom = 350.0
+offset_left = 350.0
+offset_top = 24.0
+offset_right = 540.0
+offset_bottom = 96.0
+mouse_filter = 2
 text = ""
 horizontal_alignment = 1
 vertical_alignment = 1
+theme_override_font_sizes/font_size = 28
+
+[node name="Task" type="HBoxContainer" parent="HUD"]
+offset_left = 570.0
+offset_top = 8.0
+offset_right = 1370.0
+offset_bottom = 70.0
+mouse_filter = 2
+alignment = 1
+theme_override_constants/separation = 6
+
+[node name="PhaseIcon" type="TextureRect" parent="HUD/Task"]
+unique_name_in_owner = true
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+custom_minimum_size = Vector2(62, 62)
+
+[node name="Status" type="Label" parent="HUD/Task"]
+unique_name_in_owner = true
+mouse_filter = 2
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 34
+
+[node name="Progress" type="ProgressBar" parent="HUD"]
+unique_name_in_owner = true
+offset_left = 600.0
+offset_top = 72.0
+offset_right = 1340.0
+offset_bottom = 102.0
+show_percentage = false
+mouse_filter = 2
+
+[node name="ClockIcon" type="TextureRect" parent="HUD"]
+unique_name_in_owner = true
+offset_left = 1400.0
+offset_top = 32.0
+offset_right = 1456.0
+offset_bottom = 88.0
+mouse_filter = 2
+expand_mode = 1
+
+[node name="Clock" type="Label" parent="HUD"]
+unique_name_in_owner = true
+offset_left = 1460.0
+offset_top = 24.0
+offset_right = 1610.0
+offset_bottom = 96.0
+mouse_filter = 2
+text = ""
+horizontal_alignment = 0
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 40
+
+[node name="Mute" type="Button" parent="HUD"]
+unique_name_in_owner = true
+offset_left = 1690.0
+offset_top = 15.0
+offset_right = 1780.0
+offset_bottom = 105.0
+theme_type_variation = &"IconButton"
+tooltip_text = "Sound"
+expand_icon = true
+icon_alignment = 1
+toggle_mode = true
+
+[node name="Pause" type="Button" parent="HUD"]
+unique_name_in_owner = true
+offset_left = 1800.0
+offset_top = 15.0
+offset_right = 1890.0
+offset_bottom = 105.0
+theme_type_variation = &"IconButton"
+tooltip_text = "Pause"
+expand_icon = true
+icon_alignment = 1
+
+[node name="Overlay" type="Control" parent="."]
+unique_name_in_owner = true
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 1920.0
+offset_bottom = 1080.0
+visible = false
+
+[node name="Shade" type="ColorRect" parent="Overlay"]
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+color = Color(0.1, 0.08, 0.02, 0.45)
+
+[node name="Paper" type="TextureRect" parent="Overlay"]
+offset_left = 360.0
+offset_top = 170.0
+offset_right = 1560.0
+offset_bottom = 970.0
+mouse_filter = 2
+texture = ExtResource("panel")
+expand_mode = 1
+
+[node name="ResultHost" type="Node2D" parent="Overlay"]
+unique_name_in_owner = true
+script = ExtResource("host")
+position = Vector2(630, 850)
+
+[node name="OverlayTitle" type="Label" parent="Overlay"]
+unique_name_in_owner = true
+offset_left = 850.0
+offset_top = 215.0
+offset_right = 1500.0
+offset_bottom = 295.0
+mouse_filter = 2
+text = ""
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 54
+
+[node name="ResultStars" type="HBoxContainer" parent="Overlay"]
+unique_name_in_owner = true
+offset_left = 850.0
+offset_top = 296.0
+offset_right = 1500.0
+offset_bottom = 406.0
+alignment = 1
+theme_override_constants/separation = 14
+
+[node name="Star1" type="TextureRect" parent="Overlay/ResultStars"]
+custom_minimum_size = Vector2(104, 104)
+expand_mode = 1
+mouse_filter = 2
+
+[node name="Star2" type="TextureRect" parent="Overlay/ResultStars"]
+custom_minimum_size = Vector2(104, 104)
+expand_mode = 1
+mouse_filter = 2
+
+[node name="Star3" type="TextureRect" parent="Overlay/ResultStars"]
+custom_minimum_size = Vector2(104, 104)
+expand_mode = 1
+mouse_filter = 2
+
+[node name="OverlayText" type="Label" parent="Overlay"]
+unique_name_in_owner = true
+offset_left = 850.0
+offset_top = 406.0
+offset_right = 1500.0
+offset_bottom = 586.0
+mouse_filter = 2
+text = ""
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 28
+autowrap_mode = 3
+
+[node name="NextLevel" type="Button" parent="Overlay"]
+unique_name_in_owner = true
+offset_left = 1000.0
+offset_top = 596.0
+offset_right = 1350.0
+offset_bottom = 695.0
+text = "Next level"
+visible = false
 
 [node name="OverlayAction" type="Button" parent="Overlay"]
 unique_name_in_owner = true
-offset_left = 110.0
-offset_top = 450.0
-offset_right = 930.0
-offset_bottom = 530.0
+offset_left = 1000.0
+offset_top = 596.0
+offset_right = 1350.0
+offset_bottom = 695.0
 text = "Play again"
+theme_type_variation = &"OrangeButton"
 
+[node name="Stop" type="Button" parent="Overlay"]
+unique_name_in_owner = true
+offset_left = 1000.0
+offset_top = 700.0
+offset_right = 1350.0
+offset_bottom = 799.0
+text = "Finish now"
+theme_type_variation = &"OrangeButton"
 
 [node name="Back" type="Button" parent="Overlay"]
 unique_name_in_owner = true
-offset_left = 110.0
-offset_top = 550.0
-offset_right = 930.0
-offset_bottom = 620.0
+offset_left = 1000.0
+offset_top = 804.0
+offset_right = 1350.0
+offset_bottom = 903.0
 text = "Choose a game"
+theme_type_variation = &"BlueButton"
 
+[node name="Fx" type="Node2D" parent="."]
+unique_name_in_owner = true
+script = ExtResource("fx")
 
 [node name="ClickSound" type="AudioStreamPlayer" parent="."]
 unique_name_in_owner = true
@@ -323,79 +643,3 @@ unique_name_in_owner = true
 stream = ExtResource("success")
 volume_db = -12.0
 
-[node name="HubEyebrow" type="Label" parent="Setup"]
-unique_name_in_owner = true
-offset_left = 340.0
-offset_top = 245.0
-offset_right = 740.0
-offset_bottom = 285.0
-text = "COGNITIVE GARDEN"
-theme_override_font_sizes/font_size = 20
-
-[node name="HubHeading" type="Label" parent="Setup"]
-unique_name_in_owner = true
-offset_left = 340.0
-offset_top = 290.0
-offset_right = 740.0
-offset_bottom = 360.0
-text = "Choose your practice"
-theme_override_font_sizes/font_size = 30
-
-[node name="MemoryCard" type="Button" parent="Setup"]
-unique_name_in_owner = true
-offset_left = 340.0
-offset_top = 390.0
-offset_right = 730.0
-offset_bottom = 484.0
-text = "Memory Meadow · Recall"
-theme_override_styles/normal = SubResource("memory")
-theme_override_font_sizes/font_size = 21
-
-[node name="MelodyCard" type="Button" parent="Setup"]
-unique_name_in_owner = true
-offset_left = 340.0
-offset_top = 510.0
-offset_right = 730.0
-offset_bottom = 604.0
-text = "Melody Steps · Sequence"
-theme_override_styles/normal = SubResource("melody")
-theme_override_font_sizes/font_size = 21
-
-[node name="FocusCard" type="Button" parent="Setup"]
-unique_name_in_owner = true
-offset_left = 340.0
-offset_top = 630.0
-offset_right = 730.0
-offset_bottom = 724.0
-text = "Focus Finder · Attention"
-theme_override_styles/normal = SubResource("focus_card")
-theme_override_font_sizes/font_size = 21
-
-[node name="LevelDetails" type="Label" parent="Setup"]
-unique_name_in_owner = true
-offset_left = 840.0
-offset_top = 525.0
-offset_right = 1520.0
-offset_bottom = 580.0
-autowrap_mode = 3
-horizontal_alignment = 1
-theme_override_font_sizes/font_size = 21
-
-[node name="LevelHUD" type="Label" parent="HUD"]
-unique_name_in_owner = true
-offset_left = 580.0
-offset_top = 105.0
-offset_right = 1380.0
-offset_bottom = 145.0
-text = "LEVEL 1 / 3"
-horizontal_alignment = 1
-theme_override_colors/font_color = Color(0.7, 0.86, 0.8, 1)
-
-[node name="NextLevel" type="Button" parent="Overlay"]
-unique_name_in_owner = true
-offset_left = 110.0
-offset_top = 365.0
-offset_right = 930.0
-offset_bottom = 435.0
-text = "Next level"
-visible = false

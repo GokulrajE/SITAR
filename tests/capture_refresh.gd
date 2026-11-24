@@ -15,18 +15,7 @@ func capture() -> void:
 	viewport.msaa_3d = Viewport.MSAA_4X
 	viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
 	root.add_child(viewport)
-	var game = load("res://games/cognitive/scenes/cognitive_hub.tscn").instantiate()
-	viewport.add_child(game)
-	game.set_process(false)
-	await snap("cognitive_setup_refresh")
-	game.difficulty = 2
-	game.start_session()
-	for tile in game.buttons: tile.reveal(true, false)
-	await snap("cognitive_icons_refresh")
-	viewport.remove_child(game)
-	game.queue_free()
-	await process_frame
-	game = load("res://games/adventure/scenes/adventure.tscn").instantiate()
+	var game = load("res://games/adventure/scenes/adventure.tscn").instantiate()
 	viewport.add_child(game)
 	game.set_process(false)
 	game.level = 2
@@ -43,5 +32,5 @@ func capture() -> void:
 	await snap("adventure_pulse_refresh")
 	viewport.queue_free()
 	await process_frame
-	print("PASS: refreshed hub, distinct icons, threat warning and pulse rendered at 4K")
+	print("PASS: threat warning and pulse rendered at 4K")
 	quit()

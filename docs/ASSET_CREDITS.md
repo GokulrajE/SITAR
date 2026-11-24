@@ -9,7 +9,8 @@ Created specifically for this project using Godot mesh geometry and materials:
 - Golden seed: rounded glowing body, pointed husk, paired leaves and orbiting ring. The scene retains its original `crystal.tscn` filename for gameplay compatibility.
 - Night environments: Starlight Courtyard, Moonlit Robo Garden and Lunar Greenhouse; native scene geometry, charging alcoves, lanterns and soft-glow shader inspired by the approved concept previews.
 - Cognitive icons: apple, flower, fish, rocket, mushroom, butterfly, duck and tree; native mesh geometry in `games/cognitive/scenes/3d/icons/`.
-- Cognitive pedestal and cloud cover, with reveal, bounce and matching-spin animations in `games/cognitive/scenes/3d/cognitive_tile.tscn`.
+- Cognitive pedestal and cloud cover in `games/cognitive/scenes/3d/cognitive_tile.tscn`. No longer used: the cognitive games are 2D.
+- Cognitive 2D pictures in `assets/images/cognitive/`: generated from `docs/COGNITIVE_2D_ART_PROMPTS.md`; see `generation_manifest.json` there. The six notes are synthesised by the game.
 
 Editable source scenes are in games/adventure/scenes/3d, games/cognitive/scenes/3d and scenes/environments. Unused GLB snapshots were removed.
 
@@ -52,3 +53,11 @@ A small subset of Kenney Tiny Dungeon tiles remains for prototype scenes re-save
 - Ocean splash by Thimras: https://opengameart.org/content/ocean-splash . CC0, original cannon_miss_0.ogg, locally named splash.ogg.
 - Beach Ocean Waves by jasinski (submitted by qubodup): https://opengameart.org/content/beach-ocean-waves . CC0; wave_01_cc0-18363__jasinski__alkaibeach.flac converted to OGG with crossfade/fades for ambience. Audio license notes: assets/audio/ocean/LICENSE.txt.
 - Original work: litter models, basket and scoop additions, collection effects, ocean/shore/wake shaders, UI and jump tracks.
+
+## Sensory games
+
+Original generated nine-cell 2D atlas, vector pattern references, and nine CC0 / CC BY sound recordings: see [full sources, licenses, modifications and art prompt](SENSORY_GAMES.md).
+
+## Butterfly Garden
+
+Garden background, butterfly wing-animation sheet, and flower/pollen sheet in assets/images/butterfly_garden were generated with OpenAI's built-in image-generation tool. See docs/BUTTERFLY_GARDEN.md for exact prompts and atlas details. Confirmation audio reuses the existing project asset.

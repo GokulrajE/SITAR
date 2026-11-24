@@ -8,6 +8,7 @@ func quiet(game) -> void:
 	for sound in game.find_children("*Sound", "AudioStreamPlayer", true, false): sound.stream = null
 func run_tests() -> void:
 	var garden = load("res://games/cognitive/scenes/cognitive_hub.tscn").instantiate()
+	garden.persist = false
 	quiet(garden)
 	for level in range(3):
 		garden.mode = 2

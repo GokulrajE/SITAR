@@ -7,7 +7,7 @@ func run_tests() -> void:
 	THEMES.last_session_theme = -1
 	var previous := -1
 	var visited := {}
-	for scene_path in ["res://games/adventure/scenes/adventure.tscn", "res://games/cognitive/scenes/cognitive_hub.tscn"]:
+	for scene_path in ["res://games/adventure/scenes/adventure.tscn"]:
 		var game = load(scene_path).instantiate()
 		game.auto_fullscreen = false
 		root.add_child(game)
@@ -33,5 +33,5 @@ func run_tests() -> void:
 	var prize = load("res://games/adventure/scenes/3d/crystal.tscn").instantiate()
 	assert(prize.has_node("SoftGlow") and prize.has_node("GlowLight"))
 	prize.free()
-	print("PASS: option B first, three themes, no consecutive repeat across sections, pause stability, scene cleanup and glowing prizes")
+	print("PASS: option B first, three themes, no consecutive repeat, pause stability, scene cleanup and glowing prizes")
 	quit()

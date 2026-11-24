@@ -56,6 +56,10 @@ func _ready() -> void:
 	%NextLevel.pressed.connect(func(): level = mini(2, level + 1); start_session())
 	%Mute.button_pressed = AudioServer.is_bus_mute(0)
 	%Mute.toggled.connect(func(value: bool): AudioServer.set_bus_mute(0, value))
+	# The game library can open a specific game directly.
+	if get_tree().has_meta("start_mode"):
+		mode = clampi(int(get_tree().get_meta("start_mode")), 0, 1)
+		get_tree().remove_meta("start_mode")
 	prepare()
 
 func clear_actors() -> void:

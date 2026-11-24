@@ -10,18 +10,14 @@ func capture() -> void:
 	viewport.msaa_3d = Viewport.MSAA_4X
 	viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
 	root.add_child(viewport)
-	for section in ["adventure", "cognitive"]:
-		var scene_path := "res://games/adventure/scenes/adventure.tscn" if section == "adventure" else "res://games/cognitive/scenes/cognitive_hub.tscn"
-		var game = load(scene_path).instantiate()
+	for section in ["adventure"]:
+		var game = load("res://games/adventure/scenes/adventure.tscn").instantiate()
 		viewport.add_child(game)
 		game.set_process(false)
 		game.start_session()
-		if section == "adventure":
-			for i in range(3):
-				game.enemies[i].position = [Vector3(-7, 0, -2), Vector3(8, 0, 4), Vector3(-8, 0, 6)][i]
-				game.crystals[i].position = [Vector3(7, 0, -3), Vector3(-5, 0, 3), Vector3(3, 0, 7)][i]
-		else:
-			for tile in game.buttons: tile.reveal(true, false)
+		for i in range(3):
+			game.enemies[i].position = [Vector3(-7, 0, -2), Vector3(8, 0, 4), Vector3(-8, 0, 6)][i]
+			game.crystals[i].position = [Vector3(7, 0, -3), Vector3(-5, 0, 3), Vector3(3, 0, 7)][i]
 		for theme in range(3):
 			game.get_node("%NightThemes").show_theme(theme)
 			for frame in range(8): await process_frame
@@ -33,5 +29,5 @@ func capture() -> void:
 		await process_frame
 	viewport.queue_free()
 	await process_frame
-	print("PASS: six native 4K night-theme previews")
+	print("PASS: three native 4K night-theme previews")
 	quit()

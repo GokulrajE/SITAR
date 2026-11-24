@@ -1,0 +1,245 @@
+extends SceneTree
+## Pegboard set-up and Shape Match, driven by simulated IR-frame contacts.
+## Never touches the real settings (Library.persist = false).
+## Optional: pass a folder after "--" to save screenshots there.
+const Library = preload("res://games/pegboard/scripts/peg_library.gd")
+const Art = preload("res://games/pegboard/scripts/peg_art.gd")
+## Canvas pixels read off the real touch frame (boards A, B and C of 70 mm).
+const REAL := {
+	"A": [Vector2(526, 284), Vector2(448, 297), Vector2(465, 359)],
+	"B": [Vector2(981, 302), Vector2(1098, 296), Vector2(1058, 376)],
+	"C": [Vector2(1046, 754), Vector2(985, 855), Vector2(983, 765)],
+}
+var ids := 100
+var down: Dictionary = {}
+var shots := ""
+var failed := false
+
+func _initialize() -> void:
+	call_deferred("run")
+
+func check(ok: bool, what: String) -> void:
+	if not ok:
+		failed = true
+		printerr("FAIL: ", what)
+
+func legs(board: String, centre: Vector2, deg: float, noise := 0.0) -> Array:
+	var out := []
+	var k := 1920.0 / Library.DEFAULT_WIDTH_MM
+	for p: Vector2 in Library.DESIGN[board]:
+		out.append(centre + (Vector2(p.x, -p.y) * k).rotated(deg_to_rad(deg)) + Vector2(randf_range(-noise, noise), randf_range(-noise, noise)) * k)
+	return out
+
+func put(s, board: String, centre: Vector2, deg := 0.0, noise := 0.0) -> void:
+	down[board] = []
+	for p in legs(board, centre, deg, noise):
+		ids += 1
+		s.tracker._down(ids, p)
+		down[board].append(ids)
+
+func lift(s, board: String) -> void:
+	for i in down[board]:
+		s.tracker._up(i)
+	down.erase(board)
+
+func run_for(s, secs: float) -> void:
+	var t := 0.0
+	while t < secs:
+		s.tracker.update(0.05)
+		if s.has_method("_advance") and s.state != "paused":
+			s._t += 0.05
+			s._advance()
+		t += 0.05
+
+func shot(s, file: String) -> void:
+	if shots == "" or DisplayServer.get_name() == "headless":
+		return
+	for i in 4:
+		s.queue_redraw()
+		await process_frame
+	await RenderingServer.frame_post_draw
+	get_root().get_texture().get_image().save_png(shots + "/" + file + ".png")
+
+func open(path: String):
+	change_scene_to_file(path)
+	for i in 3:
+		await process_frame
+	return current_scene
+
+func run() -> void:
+	var args := OS.get_cmdline_user_args()
+	if not args.is_empty():
+		shots = args[0]
+	Library.persist = false
+	seed(7)
+	test_recognition()
+	await test_setup()
+	await test_game()
+	if failed:
+		quit(1)
+		return
+	print("PASS: recognition, calibration, set-up, all five levels, flicker, early/wrong/resting boards, hints, results")
+	quit()
+
+func test_recognition() -> void:
+	var lib := Library.new()
+	var k := Library.DEFAULT_WIDTH_MM / 1920.0
+	for b in REAL:
+		var p: Array[Vector2] = []
+		p.assign(REAL[b])
+		var r: Array = lib.identify(p, k)
+		print("real board ", b, " -> ", r)
+		check(r.size() == 3 and r[0] == b, "real contacts of board " + b)
+		var mirror: Array[Vector2] = []
+		for q in p:
+			mirror.append(Vector2(-q.x, q.y))
+		check(lib.identify(mirror, k).is_empty(), "mirrored board is rejected")
+	var wrong := 0
+	var missed := 0
+	for n in 3000:
+		var b: String = ["A", "B", "C"][n % 3]
+		var p: Array[Vector2] = []
+		p.assign(legs(b, Vector2(900, 500), randf() * 360.0, 1.5))
+		var r: Array = lib.identify(p, k)
+		if r.is_empty():
+			missed += 1
+		elif r[0] != b:
+			wrong += 1
+	print("3000 random placements, +-1.5 mm noise per leg: wrong ", wrong, ", unread ", missed)
+	check(wrong == 0 and missed < 30, "noise robustness")
+	var nine: Array[Vector2] = []
+	for b in REAL:
+		nine.append_array(REAL[b])
+	nine.shuffle()
+	lib.width_mm = 534
+	var m: Dictionary = lib.measure_screen(nine, 1920.0)
+	print("screen width from the real contacts: ", m)
+	check(m.has("width") and absf(m.get("width", 0.0) - 920.0) < 40.0, "screen measurement")
+
+func test_setup() -> void:
+	var s = await open("res://games/pegboard/scenes/peg_setup.tscn")
+	s.tracker.set_process(false)
+	await shot(s, "setup_empty")
+	for pair in [["A", "cup"], ["B", "cone"], ["C", "cup"], ["C", "square"], ["A", "cup"]]:
+		put(s, pair[0], Vector2(760, 590), randf() * 360.0, 0.5)
+		run_for(s, 0.5)
+		check(s.tracker.present.has(pair[0]), "set-up sees board " + pair[0])
+		var at: Vector2 = s.icon_pos(Library.OBJECTS.keys().find(pair[1]))
+		s.tracker._down(7, at)
+		run_for(s, 0.2)
+		s.tracker._up(7)
+		check(s.lib.object_of(pair[0]) == pair[1], "caregiver choice is stored")
+		if pair == ["C", "square"]:
+			await shot(s, "setup_ring")
+		lift(s, pair[0])
+		run_for(s, 0.7)
+		check(s.tracker.present.is_empty(), "board is lifted")
+	check(s.lib.assigned == {"A": "cup", "B": "cone", "C": "square"}, "objects move, never duplicate: %s" % s.lib.assigned)
+	put(s, "B", Vector2(90, 1000), 33.0)                 # in a corner
+	run_for(s, 0.5)
+	for i in Library.OBJECTS.size():
+		check(Rect2(0, 110, 1520, 970).has_point(s.icon_pos(i)), "ring stays on screen")
+	lift(s, "B")
+	run_for(s, 0.7)
+
+func test_game() -> void:
+	var g = await open("res://games/pegboard/scenes/peg_match.tscn")
+	check(g._start.disabled, "cannot start without objects")
+	g.lib.assigned = {"A": "cup", "B": "cone", "C": "square"}
+	g._show_menu()
+	check(not g._start.disabled, "can start with objects")
+	g.set_process(false)
+	g.tracker.set_process(false)
+	await shot(g, "menu")
+	var seen := {}
+	for lv in 5:
+		g.level = lv
+		g.start_game()
+		for rnd in g.ROUNDS:
+			run_for(g, 0.1)
+			if lv == 3:
+				check(g.state == "show", "memory picture is shown")
+				if rnd == 0:
+					await shot(g, "l4_show")
+				put(g, "A", Vector2(1540, 560))          # too early: must not count
+				run_for(g, 0.5)
+				check(g.state == "show" and g._errors == 0, "early answer is ignored")
+				lift(g, "A")
+			if lv == 4:
+				check(g.target.size() == (2 if rnd < 3 else 3), "sequence length")
+			run_for(g, 5.6 if lv >= 3 else 0.2)
+			check(g.state == "wait", "waiting for the player, is " + g.state)
+			if rnd == 0:
+				await shot(g, "l%d_wait" % (lv + 1))
+			if rnd == 1:
+				var bad: String = g.lib.objects().filter(func(o): return o != g.expected())[0]
+				put(g, g.lib.board_of(bad), Vector2(1540, 560), 50.0)
+				run_for(g, 0.5)
+				check(g.state == "wrong" and g._errors == 1, "wrong board is noticed")
+				if lv == 0:
+					await shot(g, "wrong")
+				run_for(g, 6.0)                          # left standing: no second error
+				check(g._errors == 1, "a resting wrong board counts once")
+				lift(g, g.lib.board_of(bad))
+				run_for(g, 0.7)
+			if rnd == 2 and lv != 4:
+				run_for(g, 10.5)
+				check(g.hint, "hint after 10 quiet seconds")
+			var steps: int = g.target.size()
+			for n in steps:
+				var b: String = g.lib.board_of(g.expected())
+				seen[g.expected()] = true
+				put(g, b, Vector2(1540, 560), randf() * 360.0, 0.8)
+				run_for(g, 0.5)
+				var last: bool = n == steps - 1
+				check(g.state == ("celebrate" if last else "wait"), "right board, round %d level %d, is %s" % [rnd, lv + 1, g.state])
+				if last and rnd == 0 and lv in [0, 4]:
+					g._move_confetti(0.3)
+					await shot(g, "celebrate_l%d" % (lv + 1))
+				# one leg drops out for half a second: still the same placement
+				var id: int = down[b][0]
+				var at: Vector2 = g.tracker._contacts[id].pos
+				g.tracker._up(id)
+				run_for(g, 0.5)
+				check(g.tracker.present.has(b), "a flickering leg does not lift the board")
+				g.tracker._down(id, at)
+				if rnd == 0 and last:
+					run_for(g, 3.0)                      # board left on the glass
+					check(g.state == "clear", "next round waits until the board is lifted")
+				lift(g, b)
+				run_for(g, 0.7)
+			if g.state == "celebrate":
+				while g.state == "celebrate":
+					run_for(g, 0.05)
+		check(g.state == "done" and g.results.size() == 6, "level %d finishes, is %s" % [lv + 1, g.state])
+		check(g.first_try() == (5 if lv == 4 else 4), "first-try count, level %d = %d" % [lv + 1, g.first_try()])
+		for r in g.results:
+			check(r.seconds < 30.0 and r.seconds >= 0.0, "plausible answer time")
+	run_for(g, 2.0)
+	await shot(g, "done")
+	check(seen.size() == 3, "all objects are used")
+	g.start_game()
+	g._toggle_pause()
+	check(g.state == "paused", "pause")
+	g._toggle_pause()
+	check(g.state != "paused", "continue")
+	# every optional picture can be replaced by artwork
+	var pic := ImageTexture.create_from_image(Image.create(64, 64, false, Image.FORMAT_RGBA8))
+	var files := ["bg_meadow.png", "target_card.png", "placement_pad.png", "speech_bubble.png",
+		"vfx_correct_burst_4x4.png", "vfx_try_again_4x4.png", "vfx_level_complete_4x4.png"]
+	for mood in ["idle", "think", "happy", "oops", "cheer"]:
+		files.append("pip_%s_4x4.png" % mood)
+	for f in files:
+		Art._cache[f] = pic
+	put(g, "A", Vector2(1540, 560))
+	run_for(g, 0.5)
+	for st in ["menu", "wait", "wrong", "celebrate", "done"]:
+		g.state = st
+		g._wrong_object = "cup"
+		g.target = ["cup"] as Array[String]
+		g.level = 0
+		g._state_at = g._t
+		g.queue_redraw()
+		await process_frame
+		await process_frame
+	Art._cache.clear()

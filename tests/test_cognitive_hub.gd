@@ -6,6 +6,8 @@ func run_tests() -> void:
 	game = load("res://games/cognitive/scenes/cognitive_hub.tscn").instantiate()
 	root.add_child(game)
 	game.set_process(false)
+	game.persist = false
+	game.auto_fullscreen = false
 	# Headless tests run many actions in one frame; keep audio resources checked, but skip mixing.
 	for sound in game.find_children("*Sound", "AudioStreamPlayer", true, false):
 		assert(sound.stream != null)

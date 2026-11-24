@@ -1,0 +1,978 @@
+{
+  "generator": "built-in image_gen",
+  "prompt_source": "docs/PEG_MATCH_ART_PROMPTS.md",
+  "prompts": [
+    "Character reference sheet of an original mascot called Pip for a calm cognitive-training game for adults and children. Pip is a small round blue bear-like creature: ball-shaped body in soft sky blue (#5C9DED), slightly darker blue arms, feet and round ears (#3F7FD0), pink inner ears (#FFC1CF), a large pale-blue oval tummy (#E3F0FF), big friendly dark-navy eyes with one white highlight, soft pink cheeks, small smile, no nose, no clothes, no accessories. Short stubby arms with mitten hands, two small round feet. Head and body are one round shape.\nShow four full-body views in one row on the same ground line: front, three-quarter left, side, back. Same proportions in every view.\nStyle: polished 2D game art, smooth soft shading, clean dark-navy outline of even thickness, gentle top-left light, warm and calm, not babyish. Plain white background. No text, no logo, no watermark, no resemblance to any existing cartoon or game character.\nCanvas 2048 x 1024.\n",
+    "Use the attached Pip reference exactly: same colours, proportions, outline and shading.\n2D sprite sheet for a looping IDLE animation. Canvas exactly 2048 x 2048, transparent background, strict grid of 4 columns by 4 rows, 16 frames, each cell exactly 512 x 512. No grid lines, no borders, no text.\nPip faces the viewer, full body, centred in every cell, body about 400 px tall, feet resting on the same horizontal line 60 px above the bottom of each cell, at least 40 px empty space on every side. Camera and size never change.\nMotion, frame by frame: 1-4 slowly breathe in, body stretches up 2 percent, arms relaxed at the sides; 5-8 slowly breathe out, back to the start; 9 eyes half closed; 10 eyes closed; 11 eyes half closed; 12 eyes open; 13-14 head tilts very slightly right with a small smile; 15-16 return to the pose of frame 1. Frame 16 must flow smoothly into frame 1.\nExpression: calm, patient, friendly. Polished 2D game art, smooth soft shading, even dark-navy outline, top-left light. No ground shadow, no props, no background.\n",
+    "Use the attached Pip reference exactly: same colours, proportions, outline and shading.\n2D sprite sheet for a looping THINKING animation. Canvas exactly 2048 x 2048, transparent background, strict grid of 4 columns by 4 rows, 16 frames, each cell exactly 512 x 512. No grid lines, no borders, no text, no question marks.\nPip full body, centred in every cell, body about 400 px tall, feet on the same horizontal line 60 px above the bottom of each cell, at least 40 px empty space on every side. Camera and size never change.\nMotion: 1-3 the right hand rises to touch the cheek; 4-7 eyes look up to the right, head tilts 8 degrees right; 8-9 eyes move to the centre; 10-13 eyes look up to the left, head tilts 8 degrees left, hand stays on the cheek; 14-15 eyes return to the centre and head straightens; 16 hand lowers into the pose of frame 1. Smooth loop.\nExpression: curious and interested, small closed mouth, never confused or sad. Polished 2D game art, smooth soft shading, even dark-navy outline, top-left light. No ground shadow, no props, no background.\n",
+    "Use the attached Pip reference exactly: same colours, proportions, outline and shading.\n2D sprite sheet for a looping HAPPY CELEBRATION animation. Canvas exactly 2048 x 2048, transparent background, strict grid of 4 columns by 4 rows, 16 frames, each cell exactly 512 x 512. No grid lines, no borders, no text.\nPip full body facing the viewer, centred horizontally in every cell, body about 360 px tall, standing ground line 50 px above the bottom of each cell, at least 30 px empty space on every side even at the top of the jump. Camera and size never change.\nMotion: 1-2 crouch down, arms back, squashed 8 percent; 3-5 jump up with both arms raised; 6-7 highest point, feet 70 px above the ground line, eyes closed in happy upward curves, wide open smile; 8-9 fall; 10 land with a soft squash; 11-13 clap hands twice in front of the tummy; 14-15 sway once to the left and right; 16 return to the pose of frame 1. Smooth loop.\nExpression: delighted and proud of the player. Polished 2D game art, smooth soft shading, even dark-navy outline, top-left light. No stars, no confetti, no ground shadow, no props, no background.\n",
+    "Use the attached Pip reference exactly: same colours, proportions, outline and shading.\n2D sprite sheet for a looping GENTLE ENCOURAGEMENT animation. Canvas exactly 2048 x 2048, transparent background, strict grid of 4 columns by 4 rows, 16 frames, each cell exactly 512 x 512. No grid lines, no borders, no text.\nPip full body, centred in every cell, body about 400 px tall, feet on the same horizontal line 60 px above the bottom of each cell, at least 40 px empty space on every side. Camera and size never change.\nMotion: 1-3 eyebrows lift in the middle, head tilts 6 degrees left, small surprised mouth; 4-7 a slow soft shake of the head, left then right; 8-10 a warm smile returns; 11-14 the right hand makes a small open-palm gesture towards the viewer's right, inviting another try, with one gentle nod; 15-16 return to the pose of frame 1. Smooth loop.\nExpression: kind, supportive, \"nearly, try again\". Never angry, crying, disappointed or ashamed. Inner ends of the eyebrows point UP. Polished 2D game art, smooth soft shading, even dark-navy outline, top-left light. No red crosses, no ground shadow, no props, no background.\n",
+    "Use the attached Pip reference exactly: same colours, proportions, outline and shading.\n2D sprite sheet for a looping BIG CHEER animation. Canvas exactly 2048 x 2048, transparent background, strict grid of 4 columns by 4 rows, 16 frames, each cell exactly 512 x 512. No grid lines, no borders, no text.\nPip full body, centred horizontally in every cell, body about 340 px tall, ground line 50 px above the bottom of each cell, at least 30 px empty space on every side. Camera and size never change. In every frame Pip holds one plain golden star (#FFB300, no face, no writing) the size of its head.\nMotion: 1-3 lift the star from the tummy to above the head; 4-7 small hop with the star held high, eyes closed in happy curves, wide smile; 8-11 turn the body 15 degrees left then 15 degrees right, swinging the star; 12-13 second small hop; 14-16 lower the star back to the tummy, ending in the pose of frame 1. Smooth loop.\nExpression: proud, joyful, warm. Polished 2D game art, smooth soft shading, even dark-navy outline, top-left light. No confetti, no ground shadow, no background.\n",
+    "2D game visual-effect sprite sheet: a joyful CORRECT-ANSWER BURST seen from directly above. Canvas exactly 2048 x 2048, transparent background, strict grid of 4 columns by 4 rows, 16 frames, each cell exactly 512 x 512. No grid lines, no borders, no text.\nThe effect is perfectly centred in every cell and stays inside a 480 px circle. IMPORTANT: the middle of every cell, a circle 190 px wide, stays completely empty and transparent, because a real object stands there.\nMotion: 1-2 a thin bright golden ring appears around the empty centre; 3-6 the ring expands while twelve rounded stars in gold, coral, sky blue, leaf green and soft purple shoot outward with short light trails; 7-10 the stars spread and spin, small confetti pieces and dots appear, the ring fades; 11-14 stars and confetti shrink and drift outward; 15 only a few tiny sparkles; 16 completely empty.\nStyle: polished 2D game effect, clean rounded shapes, soft glow, bright on a light background. No white flash, no flicker, no smoke, no character.\n",
+    "2D game visual-effect sprite sheet: a calm TRY-AGAIN RIPPLE seen from directly above. Canvas exactly 2048 x 2048, transparent background, strict grid of 4 columns by 4 rows, 16 frames, each cell exactly 512 x 512. No grid lines, no borders, no text.\nPerfectly centred in every cell, inside a 440 px circle. IMPORTANT: the middle of every cell, a circle 210 px wide, stays completely empty and transparent.\nMotion: 1-5 a soft amber ring (#FFB74D) appears around the empty centre and grows gently; 6-10 a second thinner ring follows it and both wobble slightly like water; 11-14 the rings widen and become transparent; 15 almost invisible; 16 completely empty.\nStyle: polished 2D game effect, soft edges, warm and gentle. No red, no cross, no warning sign, no explosion, no flicker.\n",
+    "2D game visual-effect sprite sheet: a LEVEL-COMPLETE CONFETTI FOUNTAIN seen from the front. Canvas exactly 2048 x 2048, transparent background, strict grid of 4 columns by 4 rows, 16 frames, each cell exactly 512 x 512. No grid lines, no borders, no text.\nCentred in every cell with 16 px empty space on every side.\nMotion: 1-3 a soft golden light opens in the middle with twelve wide gentle rays; 4-8 paper confetti and rounded stars in gold, coral, sky blue, leaf green and soft purple fly outward and up from the centre; 9-13 the confetti slows, turns and begins to fall while the rays fade; 14-15 a few last pieces near the bottom; 16 completely empty.\nStyle: polished 2D game effect, clean rounded shapes, soft glow. No white flash, no flicker, no character.\n",
+    "Wide 2D game background, exactly 1920 x 1080: a calm morning meadow for a cognitive-training game. Pale blue sky (#BFE6F5) fading to very light mint at the horizon, two or three soft white clouds, low rounded green hills (#C5E8B7 and #A5D796) in the bottom quarter only, a few tiny flowers and one small round tree at the far left and far right edges.\nThe centre and the right half must be plain, light and low contrast, because a card and a real object are shown there. Nothing detailed between 10 and 75 percent of the height. Leave a plain grassy spot at the lower left, where a character will stand.\nStyle: polished 2D game art, smooth soft shapes, gentle light from the top left. No characters, no animals, no objects, no text, no frame, no buttons.\n",
+    "2D game UI element, exactly 1024 x 1024, transparent background: one large empty square picture card, centred, filling 960 x 960, corner radius about 110 px. Cream inside (#FFFAF0), completely plain and flat. A soft rounded border about 26 px wide in pale blue-grey with a thin lighter inner line, and a very soft shadow below.\nStyle: polished 2D game UI, matches a calm blue and mint game. No text, no icon, no pattern, no picture inside, no stars, no ribbon.\n",
+    "2D game UI element, exactly 1024 x 1024, transparent background, seen from directly above: one round placement pad, perfectly circular and centred, 960 px wide. Very light mint-white inside, almost plain. A clear teal ring (#26A69A) about 34 px wide on the outside, a thin lighter ring inside it, and four small rounded teal arrow marks at the top, right, bottom and left pointing to the centre. The middle circle, 560 px wide, must be completely plain.\nStyle: polished 2D game UI, soft and clean. No text, no hand, no object, no shadow outside the ring.\n",
+    "2D game UI element, exactly 1024 x 500, transparent background: one empty white speech bubble with large rounded corners and a thin pale blue-grey outline. The bubble body fills the width and the top 410 px. A short rounded tail at the bottom, about 45 percent from the left, points straight down to the bottom edge. Flat white inside, very soft shadow.\nStyle: polished 2D game UI. No text, no dots, no icon.\n",
+    "Full-screen 2D game layout mock-up, 16:9, 1920 x 1080, for a calm cognitive-training game on a large horizontal touch screen. Use the attached Pip reference for the character.\nTop: a translucent white bar 110 px high with one rounded blue-grey button at the far left, one at the far right, and six small progress dots in the centre, the first two replaced by golden stars.\nLeft third: Pip stands on the grass at the lower left, about 420 px tall, with an empty white speech bubble above its head.\nCentre: one large cream rounded square card, 600 x 600, showing a single simple orange open cup (a plain open cylinder, no handle).\nRight third: one large round mint placement pad with a teal ring, 460 px wide, empty.\nBackground: calm pale-blue sky, soft clouds, low green hills at the bottom.\nVery large shapes, lots of empty space, at most three things to look at, high readability for older adults. Polished 2D game art, smooth soft shading, gentle top-left light. No text, no coins, no timers, no small icons, no watermark.\n"
+  ],
+  "prompt_additions": "Square 1:1 canvas for atlases; exact 4x4 grid; reference for character identity only; clear cell margins and alpha transparency. Regenerated idle for square aspect ratio and burst for reduced inter-cell glow.",
+  "processing": "User-authorized local resizing, alpha cleanup, character frame alignment, loop endpoint matching, effect center/padding masks, final empty VFX cells, and solid UI interior restoration.",
+  "assets": [
+    {
+      "file": "pip_reference.png",
+      "size": [
+        2048,
+        1024
+      ],
+      "source": ".codex\\generated_images\\01a20be7-64ba-7632-a3ae-46e34e731618\\exec-5dd8c45d-7b95-4d09-8304-03bc2bcd0401.png",
+      "mode": "RGB"
+    },
+    {
+      "file": "pip_idle_4x4.png",
+      "size": [
+        2048,
+        2048
+      ],
+      "source": ".codex\\generated_images\\01a20be7-64ba-7632-a3ae-46e34e731618\\exec-f2b9ffae-b019-4361-9028-9a81ab0d4207.png",
+      "mode": "RGBA",
+      "grid": [
+        4,
+        4
+      ],
+      "frame_size": [
+        512,
+        512
+      ],
+      "frame_bounds": [
+        [
+          65,
+          52,
+          446,
+          452
+        ],
+        [
+          66,
+          50,
+          445,
+          452
+        ],
+        [
+          70,
+          47,
+          442,
+          452
+        ],
+        [
+          73,
+          44,
+          439,
+          452
+        ],
+        [
+          71,
+          46,
+          441,
+          452
+        ],
+        [
+          67,
+          48,
+          445,
+          452
+        ],
+        [
+          66,
+          50,
+          446,
+          452
+        ],
+        [
+          65,
+          52,
+          447,
+          452
+        ],
+        [
+          63,
+          52,
+          448,
+          452
+        ],
+        [
+          62,
+          52,
+          450,
+          452
+        ],
+        [
+          61,
+          52,
+          451,
+          452
+        ],
+        [
+          61,
+          52,
+          451,
+          452
+        ],
+        [
+          64,
+          52,
+          447,
+          452
+        ],
+        [
+          65,
+          52,
+          447,
+          452
+        ],
+        [
+          63,
+          52,
+          448,
+          452
+        ],
+        [
+          65,
+          52,
+          446,
+          452
+        ]
+      ]
+    },
+    {
+      "file": "pip_think_4x4.png",
+      "size": [
+        2048,
+        2048
+      ],
+      "source": ".codex\\generated_images\\01a20be7-64ba-7632-a3ae-46e34e731618\\exec-73ab7116-718d-4447-8bbb-ecfcb20dbd16.png",
+      "mode": "RGBA",
+      "grid": [
+        4,
+        4
+      ],
+      "frame_size": [
+        512,
+        512
+      ],
+      "frame_bounds": [
+        [
+          73,
+          52,
+          439,
+          452
+        ],
+        [
+          69,
+          52,
+          442,
+          452
+        ],
+        [
+          75,
+          52,
+          436,
+          452
+        ],
+        [
+          79,
+          52,
+          432,
+          452
+        ],
+        [
+          79,
+          52,
+          433,
+          452
+        ],
+        [
+          77,
+          52,
+          434,
+          452
+        ],
+        [
+          76,
+          52,
+          436,
+          452
+        ],
+        [
+          77,
+          52,
+          434,
+          452
+        ],
+        [
+          73,
+          52,
+          438,
+          452
+        ],
+        [
+          77,
+          52,
+          435,
+          452
+        ],
+        [
+          73,
+          52,
+          439,
+          452
+        ],
+        [
+          75,
+          52,
+          437,
+          452
+        ],
+        [
+          75,
+          53,
+          437,
+          452
+        ],
+        [
+          73,
+          52,
+          438,
+          452
+        ],
+        [
+          71,
+          52,
+          440,
+          452
+        ],
+        [
+          73,
+          52,
+          439,
+          452
+        ]
+      ]
+    },
+    {
+      "file": "pip_happy_4x4.png",
+      "size": [
+        2048,
+        2048
+      ],
+      "source": ".codex\\generated_images\\01a20be7-64ba-7632-a3ae-46e34e731618\\exec-201f44b6-c561-4aaf-b615-f7cefa43ad8a.png",
+      "mode": "RGBA",
+      "grid": [
+        4,
+        4
+      ],
+      "frame_size": [
+        512,
+        512
+      ],
+      "frame_bounds": [
+        [
+          98,
+          131,
+          413,
+          462
+        ],
+        [
+          75,
+          131,
+          437,
+          462
+        ],
+        [
+          73,
+          87,
+          439,
+          447
+        ],
+        [
+          79,
+          67,
+          433,
+          427
+        ],
+        [
+          77,
+          47,
+          434,
+          407
+        ],
+        [
+          70,
+          32,
+          442,
+          392
+        ],
+        [
+          69,
+          32,
+          443,
+          392
+        ],
+        [
+          76,
+          54,
+          436,
+          414
+        ],
+        [
+          73,
+          80,
+          438,
+          440
+        ],
+        [
+          82,
+          131,
+          430,
+          462
+        ],
+        [
+          106,
+          102,
+          406,
+          462
+        ],
+        [
+          106,
+          102,
+          405,
+          462
+        ],
+        [
+          107,
+          102,
+          405,
+          462
+        ],
+        [
+          82,
+          102,
+          430,
+          462
+        ],
+        [
+          82,
+          102,
+          429,
+          462
+        ],
+        [
+          98,
+          131,
+          413,
+          462
+        ]
+      ]
+    },
+    {
+      "file": "pip_oops_4x4.png",
+      "size": [
+        2048,
+        2048
+      ],
+      "source": ".codex\\generated_images\\01a20be7-64ba-7632-a3ae-46e34e731618\\exec-31ebb2fa-b1cc-4de0-84b7-2692f8343d29.png",
+      "mode": "RGBA",
+      "grid": [
+        4,
+        4
+      ],
+      "frame_size": [
+        512,
+        512
+      ],
+      "frame_bounds": [
+        [
+          75,
+          52,
+          436,
+          452
+        ],
+        [
+          80,
+          52,
+          432,
+          452
+        ],
+        [
+          82,
+          52,
+          429,
+          452
+        ],
+        [
+          85,
+          52,
+          427,
+          452
+        ],
+        [
+          85,
+          52,
+          427,
+          452
+        ],
+        [
+          85,
+          52,
+          427,
+          452
+        ],
+        [
+          87,
+          52,
+          425,
+          452
+        ],
+        [
+          79,
+          52,
+          432,
+          452
+        ],
+        [
+          78,
+          52,
+          434,
+          452
+        ],
+        [
+          79,
+          52,
+          433,
+          452
+        ],
+        [
+          72,
+          52,
+          439,
+          452
+        ],
+        [
+          67,
+          52,
+          445,
+          452
+        ],
+        [
+          70,
+          52,
+          441,
+          452
+        ],
+        [
+          74,
+          52,
+          438,
+          452
+        ],
+        [
+          74,
+          52,
+          437,
+          452
+        ],
+        [
+          75,
+          52,
+          436,
+          452
+        ]
+      ]
+    },
+    {
+      "file": "pip_cheer_4x4.png",
+      "size": [
+        2048,
+        2048
+      ],
+      "source": ".codex\\generated_images\\01a20be7-64ba-7632-a3ae-46e34e731618\\exec-bae6638e-65fb-467d-8d3a-460b078f0260.png",
+      "mode": "RGBA",
+      "grid": [
+        4,
+        4
+      ],
+      "frame_size": [
+        512,
+        512
+      ],
+      "frame_bounds": [
+        [
+          110,
+          117,
+          401,
+          462
+        ],
+        [
+          118,
+          119,
+          394,
+          462
+        ],
+        [
+          122,
+          119,
+          389,
+          462
+        ],
+        [
+          143,
+          105,
+          368,
+          450
+        ],
+        [
+          141,
+          96,
+          371,
+          438
+        ],
+        [
+          138,
+          94,
+          373,
+          438
+        ],
+        [
+          142,
+          106,
+          369,
+          450
+        ],
+        [
+          134,
+          119,
+          378,
+          462
+        ],
+        [
+          129,
+          117,
+          382,
+          462
+        ],
+        [
+          139,
+          118,
+          373,
+          462
+        ],
+        [
+          125,
+          117,
+          386,
+          462
+        ],
+        [
+          134,
+          101,
+          378,
+          446
+        ],
+        [
+          140,
+          94,
+          371,
+          438
+        ],
+        [
+          118,
+          119,
+          393,
+          462
+        ],
+        [
+          119,
+          119,
+          392,
+          462
+        ],
+        [
+          110,
+          117,
+          401,
+          462
+        ]
+      ]
+    },
+    {
+      "file": "vfx_correct_burst_4x4.png",
+      "size": [
+        2048,
+        2048
+      ],
+      "source": ".codex\\generated_images\\01a20be7-64ba-7632-a3ae-46e34e731618\\exec-5b7c6c2e-f0b7-4b51-9501-afa91828b6a6.png",
+      "mode": "RGBA",
+      "grid": [
+        4,
+        4
+      ],
+      "frame_size": [
+        512,
+        512
+      ],
+      "frame_bounds": [
+        [
+          137,
+          137,
+          375,
+          375
+        ],
+        [
+          128,
+          128,
+          384,
+          384
+        ],
+        [
+          17,
+          17,
+          496,
+          496
+        ],
+        [
+          16,
+          16,
+          496,
+          496
+        ],
+        [
+          16,
+          17,
+          496,
+          496
+        ],
+        [
+          16,
+          16,
+          496,
+          496
+        ],
+        [
+          16,
+          16,
+          496,
+          496
+        ],
+        [
+          16,
+          16,
+          496,
+          496
+        ],
+        [
+          16,
+          16,
+          496,
+          495
+        ],
+        [
+          16,
+          16,
+          496,
+          495
+        ],
+        [
+          16,
+          16,
+          496,
+          491
+        ],
+        [
+          17,
+          16,
+          495,
+          474
+        ],
+        [
+          54,
+          19,
+          466,
+          456
+        ],
+        [
+          65,
+          55,
+          447,
+          460
+        ],
+        [
+          80,
+          71,
+          381,
+          444
+        ],
+        null
+      ]
+    },
+    {
+      "file": "vfx_try_again_4x4.png",
+      "size": [
+        2048,
+        2048
+      ],
+      "source": ".codex\\generated_images\\01a20be7-64ba-7632-a3ae-46e34e731618\\exec-e58f34bc-7e6b-4d85-b886-47aeaf92fb1a.png",
+      "mode": "RGBA",
+      "grid": [
+        4,
+        4
+      ],
+      "frame_size": [
+        512,
+        512
+      ],
+      "frame_bounds": [
+        [
+          133,
+          133,
+          379,
+          379
+        ],
+        [
+          126,
+          126,
+          386,
+          386
+        ],
+        [
+          119,
+          119,
+          393,
+          393
+        ],
+        [
+          112,
+          112,
+          400,
+          400
+        ],
+        [
+          105,
+          105,
+          407,
+          407
+        ],
+        [
+          98,
+          98,
+          414,
+          414
+        ],
+        [
+          91,
+          91,
+          421,
+          421
+        ],
+        [
+          84,
+          84,
+          428,
+          428
+        ],
+        [
+          77,
+          77,
+          435,
+          435
+        ],
+        [
+          70,
+          70,
+          442,
+          442
+        ],
+        [
+          63,
+          63,
+          449,
+          449
+        ],
+        [
+          55,
+          45,
+          474,
+          440
+        ],
+        [
+          152,
+          106,
+          399,
+          411
+        ],
+        [
+          357,
+          120,
+          386,
+          404
+        ],
+        null,
+        null
+      ]
+    },
+    {
+      "file": "vfx_level_complete_4x4.png",
+      "size": [
+        2048,
+        2048
+      ],
+      "source": ".codex\\generated_images\\01a20be7-64ba-7632-a3ae-46e34e731618\\exec-5c73342a-4016-4b35-abba-b4e8ba88d05c.png",
+      "mode": "RGBA",
+      "grid": [
+        4,
+        4
+      ],
+      "frame_size": [
+        512,
+        512
+      ],
+      "frame_bounds": [
+        [
+          107,
+          151,
+          403,
+          437
+        ],
+        [
+          59,
+          90,
+          460,
+          486
+        ],
+        [
+          42,
+          79,
+          468,
+          489
+        ],
+        [
+          37,
+          75,
+          463,
+          490
+        ],
+        [
+          43,
+          75,
+          463,
+          489
+        ],
+        [
+          47,
+          67,
+          460,
+          485
+        ],
+        [
+          44,
+          72,
+          461,
+          479
+        ],
+        [
+          39,
+          43,
+          464,
+          475
+        ],
+        [
+          27,
+          24,
+          482,
+          449
+        ],
+        [
+          41,
+          57,
+          461,
+          427
+        ],
+        [
+          66,
+          117,
+          463,
+          465
+        ],
+        [
+          67,
+          136,
+          457,
+          472
+        ],
+        [
+          77,
+          181,
+          428,
+          462
+        ],
+        [
+          116,
+          266,
+          391,
+          478
+        ],
+        [
+          178,
+          444,
+          211,
+          459
+        ],
+        null
+      ]
+    },
+    {
+      "file": "bg_meadow.png",
+      "size": [
+        1920,
+        1080
+      ],
+      "source": ".codex\\generated_images\\01a20be7-64ba-7632-a3ae-46e34e731618\\exec-6f6ea0d9-eae7-4454-8ef8-a4c357704853.png",
+      "mode": "RGB"
+    },
+    {
+      "file": "target_card.png",
+      "size": [
+        1024,
+        1024
+      ],
+      "source": ".codex\\generated_images\\01a20be7-64ba-7632-a3ae-46e34e731618\\exec-80f0c219-10f9-42a9-a84b-bbd058a4b54f.png",
+      "mode": "RGBA"
+    },
+    {
+      "file": "placement_pad.png",
+      "size": [
+        1024,
+        1024
+      ],
+      "source": ".codex\\generated_images\\01a20be7-64ba-7632-a3ae-46e34e731618\\exec-806021d8-6f15-46e3-84b0-eb1790369136.png",
+      "mode": "RGBA"
+    },
+    {
+      "file": "speech_bubble.png",
+      "size": [
+        1024,
+        500
+      ],
+      "source": ".codex\\generated_images\\01a20be7-64ba-7632-a3ae-46e34e731618\\exec-371c753e-ebbd-49b7-9b4c-6b1c5d8e7174.png",
+      "mode": "RGBA"
+    },
+    {
+      "file": "layout_reference.png",
+      "size": [
+        1920,
+        1080
+      ],
+      "source": ".codex\\generated_images\\01a20be7-64ba-7632-a3ae-46e34e731618\\exec-825e0361-c0a5-447f-9524-0bba00ce5ccc.png",
+      "mode": "RGB"
+    }
+  ]
+}

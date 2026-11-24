@@ -1,0 +1,23 @@
+[gd_scene format=3 uid="uid://stove_rig"]
+
+[ext_resource type="Script"    path="res://games/dosa/scripts/stove_rig.gd" id="script"]
+[ext_resource type="Texture2D" path="res://assets/images/dosa_game_background_stove_fire_pngs/10_large_gas_stove.png" id="stove"]
+[ext_resource type="Texture2D" path="res://assets/images/dosa_cooking_game_transparent_pngs/01_large_dosa_tawa.png" id="tawa"]
+
+[node name="StoveRig" type="Node2D"]
+script = ExtResource("script")
+
+[node name="Stove" type="Sprite2D" parent="."]
+scale = Vector2(0.42, 0.42)
+texture = ExtResource("stove")
+
+[node name="Fire" type="AnimatedSprite2D" parent="."]
+position = Vector2(0, -47)
+scale = Vector2(1.2, 1.2)
+z_index = 1
+
+[node name="Tawa" type="Sprite2D" parent="."]
+position = Vector2(0, -47)
+scale = Vector2(0.3, 0.3)
+z_index = 2
+texture = ExtResource("tawa")

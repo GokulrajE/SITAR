@@ -4,17 +4,17 @@ Open `project.godot` in Godot 4.6 and press **F5**. The game library has three i
 
 ## Cognitive Garden
 
-Memory Meadow, Melody Steps and Focus Finder now play in native 3D with recognizable objects instead of numbered or symbol tiles. Eight original mesh icons include an apple, flower, fish, rocket, mushroom, butterfly, duck and tree. Memory Meadow reveals objects under clouds and celebrates matching pairs with a spin. Melody Steps uses bouncing objects, gold rings and pitched sounds to show the sequence. Focus Finder displays a small target object above the board; click or tap its matching object.
+Memory Meadow, Melody Steps and Focus Finder play in painted 2D. Each game has its own world for every level and its own animated host: Moti the elephant, Nila the peacock and Tashi the red panda. In Memory Meadow, flowers open to show an object. In Melody Steps, six animals on stones each play their own note. In Focus Finder, the object to find is inside a magnifying glass; level 3 uses look-alikes. Objects come from six picture sets and change every session. The art is in `assets/images/cognitive/` (prompts: `docs/COGNITIVE_2D_ART_PROMPTS.md`).
 
-The previous rules, three difficulty levels, scoring, pause/resume, stop, replay and per-game/per-difficulty best scores remain. During play, the HUD shows score, time, a short task cue and essential controls. Reduced motion disables object animation while preserving the sequence highlight. Escape and application focus loss pause gameplay and animation.
+The rules, three levels, scoring, pause, replay and best scores are unchanged. Two touches within 0.22 seconds and 120 pixels count as one, because one finger can break the infrared beams twice. "Motion: calm" stops movement but keeps all cues. Escape and loss of focus pause the game and every animation. Sheets load in the background while the menu is open, and only the open game stays in memory.
 
 ## Updated interface and levels
 
-The cognitive setup uses warm ivory panels, dark ink text, and teal Memory, violet Melody and amber Focus cards. Neutral platforms separate the object colors: red apple, yellow flower, turquoise fish, blue/silver rocket, orange mushroom, violet butterfly, ivory duck and green tree. Shapes remain distinct as well as colors.
+The cognitive menu shows three picture cards with the hosts, three level buttons and one Start button. The result page shows up to three stars, which are not saved.
 
 | Game | Level 1 | Level 2 | Level 3 |
 | --- | --- | --- | --- |
-| Memory Meadow | 4 pairs, untimed, 1.3s mismatch reveal | 6 pairs, 180s, 0.9s reveal | 8 pairs, 120s, 0.6s reveal |
+| Memory Meadow | 4 pairs, untimed, 1.3s mismatch look | 6 pairs, 180s, 0.9s look | 8 pairs, 120s, 0.6s look (after the flower has opened) |
 | Melody Steps | 4-step goal, 0.85s flashes | 6-step goal, 0.65s flashes | 8-step goal, 0.45s flashes |
 | Focus Finder | 5 matches, 6 choices, 90s | 8 matches, 9 choices, 60s | 12 matches, 12 choices, 45s; errors cost 3s |
 | Seed Quest | 10 seeds, 75s | 14 seeds, 70s | 18 seeds, 65s |
@@ -30,7 +30,7 @@ Verification: tests/test_levels_threats.gd covers new level goals, penalties, ti
 
 ## Little Adventures — 3D
 
-Both game sections now use three night environments. **Starlight Courtyard (option B)** opens the first session after launching the app. Each subsequent Start or Play again randomly selects one of the other two themes: **Moonlit Robo Garden** or **Lunar Greenhouse**, or returns to Starlight on later sessions. The immediately previous theme never repeats, including when switching between sections. Pausing, resuming and changing difficulty before starting do not change the active theme.
+The adventure section uses three night environments. **Starlight Courtyard (option B)** opens the first session after launching the app. Each subsequent Start or Play again randomly selects one of the other two themes: **Moonlit Robo Garden** or **Lunar Greenhouse**, or returns to Starlight on later sessions. The immediately previous theme never repeats, including when switching between sections. Pausing, resuming and changing difficulty before starting do not change the active theme.
 
 The backgrounds are editable 3D scenes inspired by the approved concepts. They retain an open center, peripheral landmarks and visible floor boundaries. Cyan robot lighting, coral enemy lighting and gold seed rewards stay consistent in every world. Emissive materials, soft radial ground glows and local lights work with the existing Compatibility renderer; no renderer switch or bloom dependency is required. Nature models remain bundled locally from [Kenney Nature Kit](https://kenney.nl/assets/nature-kit).
 
@@ -56,9 +56,9 @@ Effect assets: `games/adventure/scenes/3d/collect_effect.tscn` and `games/advent
 All UI, geometry and animation tracks are scene-authored. Scripts contain gameplay and presentation logic.
 
 - games/adventure/scenes and scripts: Nova adventures, actors, effects and HUD.
-- games/cognitive/scenes and scripts: memory, melody and focus games, including 3D icons.
+- games/cognitive/scenes and scripts: memory, melody and focus games in 2D (`scenes/3d` holds the earlier, unused 3D pieces).
 - games/hand_tracking/scenes and scripts: preserved original hand-tracking experiment.
-- scenes/ui: launcher and shared display controls.
+- scenes/ui: launcher and shared display controls. The launcher has one moving picture card per game in four skill columns (`scripts/shared/game_card.gd`); the gear opens touch test, full screen and credits. Its small pictures come from `tools/build_launcher_art.py`.
 - scenes/environments: the three night worlds and theme host.
 - scripts/shared: reusable actors, effects, theme selection and navigation.
 - assets/models/nature, audio, fonts, images, shaders and themes: runtime resources and licenses.
@@ -76,7 +76,7 @@ Use **Fullscreen / F11** on a display configured to **3840 × 2160** in the oper
 - **Balanced:** native-resolution 3D with 2× MSAA (default).
 - **Ultra:** native-resolution 3D with 4× MSAA.
 
-Graphics controls appear before starting an adventure, in the cognitive section and in the library. F11 returns to windowed mode. Presets change anti-aliasing, not rendering resolution. 4K frame rate depends on the GPU; the successful native 4K render check is not a sustained-frame-rate benchmark.
+Graphics controls appear before starting an adventure, (quality) and in the cognitive section and launcher (full screen). F11 returns to windowed mode. Presets change anti-aliasing, not rendering resolution. 4K frame rate depends on the GPU; the successful native 4K render check is not a sustained-frame-rate benchmark.
 
 
 ## Assets and data
@@ -98,7 +98,7 @@ Run each with your Godot executable:
 --headless --path D:/sitar --script tests/test_3d.gd
 --headless --path D:/sitar --script tests/test_mouse_movement.gd
 --headless --path D:/sitar --script tests/test_effects.gd
---headless --path D:/sitar --script tests/test_cognitive_3d.gd
+--headless --path D:/sitar --script tests/test_cognitive_2d.gd
 --path D:/sitar --script tests/capture_4k.gd
 --path D:/sitar --script tests/capture_cognitive_4k.gd
 --headless --path D:/sitar --script tests/test_night_themes.gd
@@ -123,3 +123,9 @@ The boat and buoys use Kenney Watercraft Kit models; palms, bushes and rocks use
 Scene: games/ocean_rescue/scenes/ocean_rescue.tscn. Logic: games/ocean_rescue/scripts/ocean_rescue.gd. Reusable models and animation tracks are in the game's scenes/3d folder. Imported models are in assets/models/ocean, sounds in assets/audio/ocean, and ocean shaders in assets/shaders. UI lives in scenes, with its theme in assets/themes/ocean_theme.tres.
 
 Rendering uses the native viewport. On a 3840×2160 display select Fullscreen / F11 and Ultra for 4× MSAA. tests/capture_ocean.gd verifies native 4K setup, play and collection frames. This verifies rendering/layout, not sustained 4K frame rate on every GPU. tests/test_ocean_rescue.gd checks progression, collection, animation pause, obstacles, replay and persistence.
+
+## Picture and sound games
+
+Two separate library entries: **Connect the picture** offers 28 distinct layouts, eight rounds per session, a saved no-repeat shuffle bag, and sequential or simultaneous touch. **Listen & discover** offers nine recordings and Easy / Medium / Hard levels with 2 / 3 / 4 choices, 4 / 6 / 9 rounds, and shorter clips with similar alternatives on Hard. Completed levels offer Next level. Untimed play, replay, volume, optional gentle animation and independent best scores remain. See [controls and audio licenses](docs/SENSORY_GAMES.md).
+
+Pattern drawing also includes **Copy on blank canvas**: reproduce the visible reference by placing your own dots, then check the shape. Undo and clear are available; matching allows different positions and sizes.

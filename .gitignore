@@ -28,3 +28,10 @@ mono_crash.*.json
 .test-data/
 .cleanup-backup/
 .cleanup-plan.json
+
+# Scratch tools, caches and backups
+tmp/
+graphify-out/
+*.FCBak
+# Same pictures as the unpacked folder
+assets/images/dosa_wide_rim_fire_png.zip
