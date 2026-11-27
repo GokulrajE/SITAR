@@ -1,37 +1,45 @@
 extends Control
-## Game library: one picture card per game, in four skill columns.
-## Games that live inside a shared scene (Cognitive Garden, Adventure) are
-## opened on the right sub-game via the "start_mode" tree meta.
+## Game library in two simple steps: six skill rows, then the games of
+## the chosen skill. Each game opens its own scene.
 const TouchButtons = preload("res://scripts/shared/touch_buttons.gd")
 
-const COGNITIVE := "res://games/cognitive/scenes/cognitive_hub.tscn"
-const ADVENTURE := "res://games/adventure/scenes/adventure.tscn"
 const ICON := {sound = 4, muted = 5}
+const GROUPS := ["Attention", "Memory", "Perception", "Movement", "Numbers", "Pegboard"]
 
 ## Seconds until a chosen game opens. Tests set 0.
 @export var transition := 0.4
 var _leaving := false
+## The skill whose games were last shown, so Home from a game comes back to it.
+static var _last_group := -1
 
 
 func _ready() -> void:
 	# Attention
-	_route(%FocusFinder, COGNITIVE, 2)
+	_route(%FocusFinder, "res://games/cognitive/scenes/focus_finder.tscn")
 	_route(%DosaMaster, "res://games/dosa/scenes/dosa_game.tscn")
-	_route(%ButterflyGarden, "res://games/butterfly_garden/scenes/garden.tscn")
 	# Memory
-	_route(%Garden, COGNITIVE, 0)          # Memory Meadow
-	_route(%MelodySteps, COGNITIVE, 1)
+	_route(%MemoryMeadow, "res://games/cognitive/scenes/memory_meadow.tscn")
+	_route(%MelodySteps, "res://games/cognitive/scenes/melody_steps.tscn")
 	# Perception
 	_route(%Sounds, "res://games/sensory/scenes/sounds.tscn")
 	_route(%Patterns, "res://games/sensory/scenes/patterns.tscn")
-	_route(%ShapeMatch, "res://games/pegboard/scenes/peg_match.tscn")
 	# Planning & movement
 	_route(%Ocean, "res://games/ocean_rescue/scenes/ocean_rescue.tscn")
-	_route(%Adventure, ADVENTURE, 0)       # Seed Quest
-	_route(%SentinelDash, ADVENTURE, 1)
+	_route(%SeedQuest, "res://games/adventure/scenes/adventure.tscn")
+	# Numbers
+	_route(%QuickSums, "res://games/numbers/scenes/quick_sums.tscn")
+	_route(%MarketBasket, "res://games/numbers/scenes/market_basket.tscn")
+	# Pegboard: the physical boards on the screen
+	_route(%ShapeMatch, "res://games/pegboard/scenes/peg_match.tscn")
+	_route(%ShapeSpots, "res://games/pegboard/scenes/shape_spots.tscn")
+	_route(%HandShape, "res://games/pegboard/scenes/hand_and_shape.tscn")
 	# For therapists
 	_route(%PegTest, "res://games/pegboard/scenes/peg_test.tscn")
 
+	for index in GROUPS.size():
+		get_node("%" + GROUPS[index] + "Tile").pressed.connect(func(): show_group(index))
+	%Back.pressed.connect(show_home)
+	%BackArrow.pressed.connect(show_home)
 	%More.pressed.connect(func(): _show_panel(%MorePanel))
 	%CloseMore.pressed.connect(func(): %MorePanel.hide())
 	%Credits.pressed.connect(func():
@@ -44,17 +52,49 @@ func _ready() -> void:
 		AudioServer.set_bus_mute(0, value)
 		_show_mute())
 	_show_mute()
-	_enter()
+	var top: Control = %TopBar
+	top.position.y = -140.0
+	create_tween().tween_property(top, "position:y", 0.0, 0.5).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	if _last_group >= 0: show_group(_last_group)
+	else: show_home()
 
 
-func _route(button: Button, scene: String, mode := -1) -> void:
-	button.pressed.connect(func(): _open(button, scene, mode))
+## The skill rows.
+func show_home() -> void:
+	_last_group = -1
+	%Shelf.hide()
+	%Home.show()
+	%BackArrow.hide()
+	%Logo.show()
+	%Title.text = "SITAR"
+	var tiles := %Home.get_children().filter(func(item): return item is BaseButton)
+	for index in tiles.size(): tiles[index].appear(0.1 + index * 0.08)
 
 
-func _open(button: Button, scene: String, mode: int) -> void:
+## Only the games of one skill, with a way back.
+func show_group(index: int) -> void:
+	_last_group = index
+	%Home.hide()
+	%Shelf.show()
+	%BackArrow.show()
+	%Logo.hide()
+	%Title.text = "SITAR   ›   " + GROUPS[index].to_upper()
+	%ShelfTitle.text = GROUPS[index].to_upper()
+	for group in GROUPS.size():
+		var shelf: Control = %Shelf.get_node(GROUPS[group])
+		shelf.visible = group == index
+		if group == index:
+			var cards := shelf.get_children()
+			for card in cards.size(): cards[card].appear(0.05 + card * 0.08)
+
+
+func _route(button: Button, scene: String) -> void:
+	button.pressed.connect(func(): _open(button, scene))
+
+
+func _open(button: Button, scene: String) -> void:
 	if _leaving: return
 	_leaving = true
-	if mode >= 0: get_tree().set_meta("start_mode", mode)
 	if transition <= 0.0:
 		get_tree().change_scene_to_file(scene)
 		return
@@ -66,23 +106,6 @@ func _open(button: Button, scene: String, mode: int) -> void:
 	tween.tween_interval(transition * 0.3)
 	tween.tween_property(%Curtain, "cover", 1.0, transition * 0.7).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 	tween.tween_callback(func(): get_tree().change_scene_to_file(scene))
-
-
-## The bar slides down, then the columns appear from left to right.
-func _enter() -> void:
-	var top: Control = %TopBar
-	top.position.y = -140.0
-	create_tween().tween_property(top, "position:y", 0.0, 0.5).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
-	var columns := %Columns.get_children()
-	for column in columns.size():
-		var row := 0
-		for item in columns[column].get_children():
-			if item.has_method("appear"):
-				item.appear(0.25 + column * 0.09 + row * 0.07)
-				row += 1
-			else:
-				item.modulate.a = 0.0
-				create_tween().tween_property(item, "modulate:a", 1.0, 0.35).set_delay(0.2 + column * 0.09)
 
 
 func _show_panel(panel: Control) -> void:
@@ -115,8 +138,10 @@ func _input(event: InputEvent) -> void:
 			_toggle_fullscreen()
 			get_viewport().set_input_as_handled()
 		elif event.keycode == KEY_ESCAPE:
-			%MorePanel.hide()
-			%CreditsPanel.hide()
+			if %MorePanel.visible or %CreditsPanel.visible:
+				%MorePanel.hide()
+				%CreditsPanel.hide()
+			elif %Shelf.visible: show_home()
 	elif TouchButtons.is_finger_down(event):
 		get_viewport().set_input_as_handled()
 		if _leaving: return

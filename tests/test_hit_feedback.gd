@@ -3,7 +3,6 @@ func _initialize() -> void:
 	call_deferred("run_tests")
 func run_tests() -> void:
 	var game = load("res://games/adventure/scenes/adventure.tscn").instantiate()
-	game.auto_fullscreen = false
 	root.add_child(game)
 	game.set_process(false)
 	game.start_session()

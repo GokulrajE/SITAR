@@ -3,11 +3,12 @@ extends Button
 ## All pictures are small copies made by tools/build_launcher_art.py.
 
 const ART := "res://assets/images/launcher/"
-const STRIP := 62.0
+const STRIP := 84.0
 const CORNER := 26.0
 const NIGHT_TOP := Color("1b2350")
 const NIGHT_BOTTOM := Color("3b3f86")
 ## A house drawn in one line, in card units of 0 to 1.
+const NEON := Color(0.93, 0.35, 1.0)
 const HOUSE := [Vector2(0.32, 0.46), Vector2(0.32, 0.88), Vector2(0.68, 0.88), Vector2(0.68, 0.46), Vector2(0.5, 0.14), Vector2(0.32, 0.46), Vector2(0.68, 0.46)]
 
 @export var game := "focus"
@@ -27,13 +28,12 @@ func _ready() -> void:
 	pivot_offset = size * 0.5
 	tooltip_text = ""
 	_frame_style.draw_center = false
-	_frame_style.set_border_width_all(5)
-	_frame_style.border_color = Color.WHITE
+	_frame_style.set_border_width_all(4)
+	_frame_style.border_color = NEON
 	_frame_style.set_corner_radius_all(int(CORNER))
-	_frame_style.shadow_color = Color(0.1, 0.13, 0.05, 0.28)
-	_frame_style.shadow_size = 10
-	_frame_style.shadow_offset = Vector2(0, 5)
-	_strip_style.bg_color = skill
+	_frame_style.shadow_color = Color(NEON, 0.35)
+	_frame_style.shadow_size = 16
+	_strip_style.bg_color = Color("1c0830")
 	_strip_style.corner_radius_bottom_left = int(CORNER)
 	_strip_style.corner_radius_bottom_right = int(CORNER)
 	pressed.connect(func(): _bump = 0.0)
@@ -50,6 +50,7 @@ func _process(delta: float) -> void:
 	_appear = minf(1.0, _appear + delta / 0.5)
 	_bump = minf(1.0, _bump + delta / 0.35)
 	var goal := 0.95 if button_pressed or is_pressed() else (1.03 if is_hovered() else 1.0)
+	_frame_style.shadow_size = 26 if is_hovered() else 16
 	_lift = lerpf(_lift, goal, 1.0 - exp(-14.0 * delta))
 	var shown := clampf(_appear, 0.0, 1.0)
 	modulate.a = minf(1.0, shown * 2.5)
@@ -63,11 +64,19 @@ func _draw() -> void:
 	call("_draw_" + game, area)
 	draw_set_transform(Vector2.ZERO)
 	draw_style_box(_strip_style, Rect2(0, area.y, size.x, STRIP))
+	draw_line(Vector2(0, area.y), Vector2(size.x, area.y), NEON, 3.0)
+	var glow := _frame_style.shadow_size
 	_frame_style.shadow_size = 0
 	draw_style_box(_frame_style, Rect2(Vector2.ZERO, size))
-	_frame_style.shadow_size = 10
+	_frame_style.shadow_size = glow
 	var font := get_theme_font("font")
-	draw_string(font, Vector2(0, area.y + STRIP * 0.5 + 11), title, HORIZONTAL_ALIGNMENT_CENTER, size.x, 32, Color.WHITE)
+	draw_string(font, Vector2(30, area.y + STRIP * 0.5 + 12), title, HORIZONTAL_ALIGNMENT_LEFT, size.x - 200, 34, Color.WHITE)
+	# A slanted "play" tag on the right of the name strip.
+	var tag := Rect2(size.x - 170, area.y + 14, 140, STRIP - 28)
+	var lean := tag.size.y * 0.35
+	draw_colored_polygon(PackedVector2Array([tag.position + Vector2(lean, 0), tag.position + Vector2(tag.size.x, 0),
+		tag.end - Vector2(lean, 0), tag.position + Vector2(0, tag.size.y)]), Color(0.62, 0.12, 0.78) if not is_hovered() else Color(0.8, 0.25, 0.95))
+	draw_string(font, Vector2(tag.position.x, tag.position.y + tag.size.y * 0.5 + 10), "play  ›", HORIZONTAL_ALIGNMENT_CENTER, tag.size.x, 28, Color.WHITE)
 
 
 # ---------------------------------------------------------------- pictures
@@ -95,14 +104,6 @@ func _draw_dosa(area: Vector2) -> void:
 	var nod := sin(_clock * 2.0) * 0.02
 	draw_set_transform(Vector2(area.x * 0.785, area.y + 4), nod)
 	_picture("chef", Vector2(0, -area.y * 0.47), area.y * 0.94)
-
-
-func _draw_butterfly(area: Vector2) -> void:
-	_backdrop(area, "bg_butterfly")
-	for i in 3:
-		var at := Vector2(area.x * (0.24 + 0.27 * i) + sin(_clock * 0.9 + i * 2.1) * 26.0,
-			area.y * (0.42 + 0.14 * (i % 2)) + cos(_clock * 1.3 + i * 1.7) * 18.0)
-		_sheet("butterflies_4x4", i * 4 + int(_clock * 7.0 + i) % 4, at, Vector2.ONE * area.y * (0.56 - 0.06 * (i % 2)))
 
 
 func _draw_memory(area: Vector2) -> void:
@@ -167,6 +168,40 @@ func _draw_shape(area: Vector2) -> void:
 		_picture(["cup", "cone", "cylinder"][i], at + Vector2(0, -area.y * 0.28 - hop * area.y * 0.12), area.y * 0.68)
 
 
+## Spots appear around the meadow; the cup lands on the one that shows it.
+func _draw_spots(area: Vector2) -> void:
+	_backdrop(area, "bg_shape")
+	var spots := [Vector2(0.22, 0.32), Vector2(0.72, 0.28), Vector2(0.5, 0.7)]
+	var turn := int(_clock * 0.5) % 3
+	var k := fmod(_clock * 0.5, 1.0)
+	for i in 3:
+		var at: Vector2 = spots[i] * area
+		var r := area.y * 0.16
+		draw_circle(at, r, Color(1, 1, 1, 0.85 if i == turn else 0.45), true, -1.0, true)
+		draw_arc(at, r, _clock + i, _clock + i + TAU * 0.8, 32, Color("26a69a"), 5.0, true)
+		if i == turn:
+			var drop := at - Vector2(0, area.y * 0.32 * maxf(0.0, 1.0 - k * 1.6))
+			_picture("cup", drop, area.y * 0.34)
+		else:
+			draw_texture_rect(_texture(["cone", "cylinder", "cup"][i]), Rect2(at - Vector2.ONE * r * 0.7, Vector2.ONE * r * 1.4), false, Color(1, 1, 1, 0.5))
+
+
+## Bubbles drift under water: some hold a hand, some an object.
+func _draw_hands(area: Vector2) -> void:
+	_gradient(area, Color("8fd3f4"), Color("1f6f9a"))
+	for i in 4:
+		var at := Vector2(fposmod(area.x * (0.15 + 0.27 * i) + _clock * (18.0 + i * 6.0), area.x + 120.0) - 60.0,
+			area.y * (0.32 + 0.3 * float(i % 2)) + sin(_clock * 1.3 + i) * 12.0)
+		var r := area.y * 0.15
+		draw_circle(at, r, Color(1, 1, 1, 0.22), true, -1.0, true)
+		draw_arc(at, r, 0, TAU, 32, Color(1, 1, 1, 0.85), 4.0, true)
+		if i % 2 == 0:
+			draw_texture_rect_region(preload("res://assets/images/cognitive/shared/ui_icons_4x4.png"),
+				Rect2(at - Vector2.ONE * r * 0.6, Vector2.ONE * r * 1.2), Rect2(0, 768, 256, 256))
+		else:
+			_picture("cone" if i == 1 else "cylinder", at, r * 1.4)
+
+
 func _draw_ocean(area: Vector2) -> void:
 	# The picture rocks slowly like a boat.
 	_backdrop(area, "bg_ocean", Vector2(sin(_clock * 0.5) * 0.02, sin(_clock * 0.9) * 0.02), 0.06)
@@ -182,18 +217,34 @@ func _draw_seed(area: Vector2) -> void:
 	_picture("nova", Vector2(area.x * 0.24, area.y * 0.52 + sin(_clock * 2.4) * 5.0), area.y * 0.84)
 
 
-func _draw_sentinel(area: Vector2) -> void:
-	_gradient(area, Color("2a1c4d"), Color("6a3a6d"))
-	_stars(area)
-	var centre := Vector2(area.x * 0.5, area.y * 0.53)
-	var pulse := fmod(_clock * 0.6, 1.0)
-	draw_arc(centre, area.y * (0.36 + 0.3 * pulse), 0, TAU, 48, Color(0.5, 0.9, 1, 0.8 * (1.0 - pulse)), 4.0, true)
-	draw_circle(centre, area.y * 0.44, Color(0.45, 0.85, 1, 0.16), true, -1.0, true)
-	draw_arc(centre, area.y * 0.44, 0, TAU, 48, Color(0.65, 0.95, 1, 0.9), 4.0, true)
-	_picture("nova", centre, area.y * 0.7)
-	for i in 2:
-		var side := -1.0 if i == 0 else 1.0
-		_picture("drone", centre + Vector2(side * (area.x * 0.34 + sin(_clock * 1.8 + i * 2.0) * 14.0), sin(_clock * 2.2 + i * 2.6) * area.y * 0.16), area.y * 0.42)
+func _draw_sums(area: Vector2) -> void:
+	_gradient(area, Color("2e4a3b"), Color("263f32"))
+	var sums := ["3 + 4", "9 − 2", "6 × 5", "12 + 8"]
+	var which := int(_clock / 2.5) % sums.size()
+	var show := clampf(fmod(_clock, 2.5) * 3.0, 0.0, 1.0)
+	var font := get_theme_font("font")
+	draw_string(font, Vector2(0, area.y * 0.58), sums[which] + " = ?", HORIZONTAL_ALIGNMENT_CENTER, area.x, int(area.y * 0.3), Color(0.96, 0.96, 0.9, show))
+	draw_rect(Rect2(area.x * 0.2, area.y * 0.86, area.x * 0.6, 8), Color("6b4a2b"))
+	draw_rect(Rect2(area.x * 0.3, area.y * 0.84, 40, 8), Color.WHITE)
+
+
+func _draw_market(area: Vector2) -> void:
+	_gradient(area, Color("f6e7c8"), Color("f1dcb2"))
+	var stripe := area.x / 8.0
+	for i in 8:
+		draw_rect(Rect2(i * stripe, CORNER, stripe, area.y * 0.18 - CORNER), Color("c8462e") if i % 2 == 0 else Color("fbf3e4"))
+		draw_circle(Vector2(i * stripe + stripe * 0.5, area.y * 0.18), stripe * 0.5, Color("c8462e") if i % 2 == 0 else Color("fbf3e4"))
+	draw_rect(Rect2(0, area.y * 0.8, area.x, area.y * 0.2), Color("9c6b3c"))
+	var fruits: Texture2D = preload("res://assets/images/cognitive/objects/fruits_4x4.png")
+	for i in 3:
+		var cell: int = [0, 2, 5][i]
+		var bob := sin(_clock * 2.0 + i * 1.3) * 4.0
+		var at := Vector2(area.x * (0.24 + 0.26 * i), area.y * 0.56 + bob)
+		draw_texture_rect_region(fruits, Rect2(at - Vector2.ONE * area.y * 0.2, Vector2.ONE * area.y * 0.4),
+			Rect2((cell % 4) * 512, floorf(cell / 4.0) * 512, 512, 512))
+		var tag := Rect2(at.x - 38, area.y * 0.78, 76, 34)
+		draw_rect(tag, Color("fffaf0"))
+		draw_string(get_theme_font("font"), Vector2(tag.position.x, tag.position.y + 27), "₹%d" % [12, 25, 40][i], HORIZONTAL_ALIGNMENT_CENTER, tag.size.x, 24, Color("3c2a16"))
 
 
 # ---------------------------------------------------------------- helpers

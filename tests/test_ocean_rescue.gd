@@ -5,7 +5,6 @@ func _initialize() -> void:
 func run_tests() -> void:
 	seed(403)
 	game = load("res://games/ocean_rescue/scenes/ocean_rescue.tscn").instantiate()
-	game.auto_fullscreen = false
 	root.add_child(game)
 	game.set_process(false)
 	assert(game.state == "ready")
@@ -95,24 +94,21 @@ func run_tests() -> void:
 		assert(game.celebration > 0)
 		game._process(2.6)
 		assert(game.state == "finished" and game.completed)
-		assert(game.get_node("%Next").visible == (level < 2))
+		assert(game.shell._next.visible == (level < 2))
 		assert(game.best[str(level)] >= game.score)
 		if level < 2:
-			game.get_node("%Next").pressed.emit()
+			game.shell._next.pressed.emit()
 			assert(game.level == level + 1 and game.collected == 0)
 	game.start_session()
 	assert(game.score == 0 and not game.get_node("%Boat/Model/Cargo0").visible)
 	game.remaining = 0.01
 	game._process(0.02)
 	assert(game.state == "finished" and not game.completed)
-	game.start_session()
-	game.get_node("%Stop").pressed.emit()
-	assert(game.state == "finished")
-	game.prepare()
-	assert(game.state == "ready" and game.pending.is_empty())
-	game.start_session()
-	game._notification(Control.NOTIFICATION_APPLICATION_FOCUS_OUT)
+	game.shell.begin()
+	game.shell._notification(Control.NOTIFICATION_APPLICATION_FOCUS_OUT)
 	assert(game.state == "paused")
+	game.shell._pause_box.get_node("EndGame").pressed.emit()
+	assert(game.state == "ready" and game.pending.is_empty())
 	game.queue_free()
 	await process_frame
 	await process_frame

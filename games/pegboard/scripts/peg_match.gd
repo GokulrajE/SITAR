@@ -14,10 +14,9 @@ const Library = preload("res://games/pegboard/scripts/peg_library.gd")
 const Tracker = preload("res://games/pegboard/scripts/peg_tracker.gd")
 const Art = preload("res://games/pegboard/scripts/peg_art.gd")
 const Sfx = preload("res://games/dosa/scripts/sfx.gd")
+const Shell = preload("res://scripts/shared/game_shell.gd")
 
 const LEVELS := ["Match", "Shape only", "Clues", "Remember", "Sequence"]
-const LEVEL_HELP := ["See the object, place the same one.", "The colour is hidden.", "Read the clue, find the object.",
-	"Look, remember, then place it.", "Place the objects in order."]
 const ROUNDS := 6
 const SHOW_SECS := 3.0
 const SEQUENCE_SECS := 1.6
@@ -29,10 +28,11 @@ const CELEBRATE_SECS := 2.4
 const GOOD := ["Well done!", "Great!", "That's right!", "Wonderful!", "You found it!"]
 const CHIME := "res://assets/images/dosa_early_late_vfx_and_sounds/sounds/03_perfect_pick_chime.wav"
 
-const CARD := Rect2(560, 220, 600, 600)
-const PAD := Vector2(1540, 560)
+## Left to right: the shape to find, the detection pad, then Pip.
+const CARD := Rect2(110, 220, 600, 600)
+const PAD := Vector2(1040, 540)
 const PAD_R := 230.0
-const PIP := Vector2(285, 690)
+const PIP := Vector2(1640, 720)
 
 var lib := Library.new()
 var tracker: Node
@@ -60,31 +60,35 @@ var _say := ""
 var _wrong_object := ""
 var _burst_at := Vector2.ZERO
 var _confetti: Array = []
-var _menu: Control
-var _done: Control
-var _pause_panel: Control
-var _pause_btn: Button
-var _start: Button
-var _next_btn: Button
-var _level_btns: Array[Button] = []
+var shell: Control
 var _rng := RandomNumberGenerator.new()
 
 
 func _ready() -> void:
 	set_anchors_preset(Control.PRESET_FULL_RECT)
-	if DisplayServer.get_name() != "headless":
-		get_window().mode = Window.MODE_FULLSCREEN
 	_rng.randomize()
 	tracker = Tracker.new()
 	tracker.lib = lib
-	tracker.area = Rect2(0, 110, 1920, 970)
+	# Only the pad reads boards; boards put down anywhere else do not count.
+	tracker.area = Rect2(PAD - Vector2.ONE * (PAD_R + 30), Vector2.ONE * (PAD_R + 30) * 2)
 	add_child(tracker)
 	tracker.placed.connect(_on_placed)
 	tracker.lifted.connect(_on_lifted)
 	tracker.unsure.connect(_on_unsure)
-	Art.button(self, "Home", Rect2(36, 24, 150, 64), _home, Color("5c7a99"))
-	_pause_btn = Art.button(self, "Pause", Rect2(1734, 24, 150, 64), _toggle_pause, Color("5c7a99"))
-	_build_menu()
+	shell = Shell.new()
+	shell.title = "Shape Match"
+	shell.levels = LEVELS
+	shell.notes = ["Same object", "Colour hidden", "Read a clue", "Remember it", "In order"]
+	shell.accent = Art.TEAL
+	shell.extra = "Record boards"
+	shell.dim = 0.3
+	add_child(shell)
+	shell.start_pressed.connect(func(chosen: int):
+		level = chosen
+		start_game())
+	shell.pause_changed.connect(func(_paused: bool): _toggle_pause())
+	shell.stop_pressed.connect(_show_menu)
+	shell.extra_pressed.connect(_open_setup)
 	_show_menu()
 
 
@@ -96,89 +100,29 @@ func _process(delta: float) -> void:
 	queue_redraw()
 
 
-func _unhandled_input(e: InputEvent) -> void:
-	if e is InputEventKey and e.pressed and not e.echo and e.keycode == KEY_ESCAPE:
-		if state == "menu" or state == "done":
-			_home()
-		else:
-			_toggle_pause()
-
-
 # -------------------------------------------------------------- menus -----
-
-func _build_menu() -> void:
-	_menu = Control.new()
-	add_child(_menu)
-	for i in LEVELS.size():
-		_level_btns.append(Art.button(_menu, "%d   %s" % [i + 1, LEVELS[i]], Rect2(700, 260 + i * 108, 420, 88), _pick.bind(i), Color("78909c")))
-	Art.button(_menu, "Set up boards", Rect2(1320, 690, 420, 80),
-		func(): get_tree().change_scene_to_file("res://games/pegboard/scenes/peg_setup.tscn"), Color("7e57c2"))
-	_start = Art.button(_menu, "Start", Rect2(1320, 800, 420, 100), start_game)
-	_start.add_theme_font_size_override("font_size", 38)
-
-	_done = Control.new()
-	add_child(_done)
-	Art.button(_done, "Play again", Rect2(700, 850, 250, 84), start_game)
-	_next_btn = Art.button(_done, "Next level", Rect2(970, 850, 250, 84), _next_level, Color("ef8b2c"))
-	Art.button(_done, "Levels", Rect2(1240, 850, 250, 84), _show_menu, Color("5c7a99"))
-	_done.hide()
-
-	_pause_panel = Control.new()
-	add_child(_pause_panel)
-	Art.button(_pause_panel, "Continue", Rect2(760, 480, 400, 90), _toggle_pause)
-	Art.button(_pause_panel, "Levels", Rect2(760, 590, 400, 90), _show_menu, Color("5c7a99"))
-	_pause_panel.hide()
-
-
-func _pick(i: int) -> void:
-	level = i
-	for n in _level_btns.size():
-		_level_btns[n].get_theme_stylebox("normal").bg_color = Art.TEAL if n == i else Color("78909c")
-		_level_btns[n].get_theme_stylebox("hover").bg_color = Art.TEAL if n == i else Color("78909c")
-	_talk(LEVEL_HELP[i], "idle")
-
 
 func _show_menu() -> void:
 	_confetti.clear()
-	_menu.show()
-	_done.hide()
-	_pause_panel.hide()
-	_pause_btn.hide()
 	_go("menu")
-	_pick(level)
-	_start.disabled = lib.objects().size() < 2
-	if _start.disabled:
-		_talk("First set up at least two boards.", "think")
-
-
-func _next_level() -> void:
-	level = mini(level + 1, LEVELS.size() - 1)
-	start_game()
-
-
-func _home() -> void:
-	get_tree().change_scene_to_file("res://scenes/ui/launcher.tscn")
+	_talk("", "idle")
 
 
 func _toggle_pause() -> void:
 	if state == "paused":
 		state = _paused_from
-		_pause_panel.hide()
 	elif state not in ["menu", "done"]:
 		_paused_from = state
 		state = "paused"
-		_pause_panel.show()
 
 
 # -------------------------------------------------------------- rounds ----
 
 func start_game() -> void:
 	if lib.objects().size() < 2:
+		shell.show_start()
+		shell.toast("First record at least two boards", false)
 		return
-	_menu.hide()
-	_done.hide()
-	_pause_panel.hide()
-	_pause_btn.show()
 	round_no = 0
 	results.clear()
 	_bag.clear()
@@ -238,7 +182,7 @@ func _clear_then(next: String) -> void:
 	_clear_next = next
 	_go("clear")
 	if not tracker.present.is_empty():
-		_talk("Lift the boards off the screen.", "idle")
+		_talk("Take the board off the circle.", "idle")
 
 
 func _advance() -> void:
@@ -312,7 +256,7 @@ func expected() -> String:
 func _on_placed(board: String, centre: Vector2) -> void:
 	var object: String = lib.object_of(board)
 	if state == "blank" or state == "show":
-		_talk("Not yet. Lift it off and wait for me.", "think")
+		_talk("Not yet. Take it off and wait for me.", "think")
 		return
 	if state != "wait":
 		return
@@ -377,10 +321,8 @@ func _finish() -> void:
 	_talk("You finished! Thank you for playing.", "cheer")
 	for i in 3:
 		_sparkle(Vector2(700 + i * 400, 420), 40)
-	_pause_btn.hide()
-	_next_btn.disabled = level == LEVELS.size() - 1
-	_done.show()
 	_go("done")
+	shell.finish(stars(), "Level finished", "Right first time %d of %d  •  %.1f s each" % [first_try(), ROUNDS, average_seconds()])
 
 
 # ------------------------------------------------------------ confetti ----
@@ -406,25 +348,15 @@ func _move_confetti(delta: float) -> void:
 func _draw() -> void:
 	var vs := get_viewport_rect().size
 	Art.background(self, vs, _t)
-	draw_rect(Rect2(0, 0, vs.x, 110), Color(1, 1, 1, 0.75))
-	if state == "menu":
-		Art.text(self, "Shape Match", Vector2(vs.x / 2, 56), 46, Art.INK)
-	else:
-		Art.text(self, LEVELS[level], Vector2(vs.x / 2, 38), 36, Art.INK)
-		for i in ROUNDS:
-			var p := Vector2(vs.x / 2 + (i - (ROUNDS - 1) / 2.0) * 44, 84)
-			if i < results.size():
-				Art.draw_star(self, p, 17, Art.GOLD)
-			else:
-				draw_circle(p, 10, Art.TEAL if i == results.size() else Color("b0bec5"))
+	if state not in ["menu", "done"]:
+		shell.set_status("%s   •   %d of %d" % [LEVELS[level], mini(results.size() + 1, ROUNDS), ROUNDS])
 
 	Art.draw_pip(self, _mood, PIP, 420, _t)
 	if _say != "":
-		_bubble(Rect2(60, 250, 450, 170), _say)
+		_bubble(Rect2(1420, 250, 450, 170), _say)
 
 	match state:
-		"menu": _draw_menu()
-		"done": _draw_done()
+		"menu", "done": pass
 		_:
 			var s: String = _paused_from if state == "paused" else state
 			_draw_card(s)
@@ -432,10 +364,6 @@ func _draw() -> void:
 
 	for c in _confetti:
 		Art.draw_star(self, c.p, c.r, Color(c.c, clampf((c.life - c.age) * 2.0, 0, 1)), c.spin * c.age)
-	if state == "paused":
-		draw_rect(Rect2(Vector2.ZERO, vs), Color(0.1, 0.2, 0.3, 0.55))
-		Art.panel(self, Rect2(700, 340, 520, 380), Color.WHITE)
-		Art.text(self, "Paused", Vector2(960, 415), 46, Art.INK)
 
 
 func _wrapped(s: String, centre: Vector2, width: float, size: int) -> void:
@@ -453,24 +381,6 @@ func _bubble(r: Rect2, s: String) -> void:
 		draw_colored_polygon(PackedVector2Array([Vector2(r.position.x + 190, r.end.y - 4), Vector2(r.position.x + 250, r.end.y - 4),
 			Vector2(r.position.x + 215, r.end.y + 40)]), Color.WHITE)
 	_wrapped(s, r.get_center(), r.size.x - 40, 32)
-
-
-func _draw_menu() -> void:
-	Art.panel(self, Rect2(640, 160, 540, 660), Color(1, 1, 1, 0.88))
-	Art.text(self, "Choose a level", Vector2(910, 210), 34, Art.INK)
-	Art.panel(self, Rect2(1250, 160, 560, 500), Color(1, 1, 1, 0.88))
-	Art.text(self, "Objects on the boards", Vector2(1530, 210), 34, Art.INK)
-	for i in 3:
-		var b: String = ["A", "B", "C"][i]
-		var p := Vector2(1350 + i * 180, 400)
-		var id: String = lib.object_of(b)
-		Art.panel(self, Rect2(p - Vector2(80, 130), Vector2(160, 290)), Color.WHITE, Color("d5dee6"), 22, 3)
-		Art.text(self, b, p - Vector2(0, 96), 30, Color("78909c"), 100)
-		if id == "":
-			Art.text(self, "?", p + Vector2(0, 10), 70, Color("b0bec5"), 100)
-		else:
-			Art.draw_object(self, id, p + Vector2(0, 14), 130)
-			Art.text(self, Library.name_of(id), p + Vector2(0, 126), 20, Art.INK, 160)
 
 
 func _draw_card(s: String) -> void:
@@ -554,7 +464,7 @@ func _draw_pad(s: String) -> void:
 	if open and tracker.present.is_empty():
 		Art.text(self, "Place it here", PAD, 40, Art.INK, 400)
 	elif s == "clear" and not tracker.present.is_empty():
-		Art.text(self, "Lift off", PAD + Vector2(0, PAD_R + 46), 40, Color("ef6c00"), 400)
+		Art.text(self, "Take it off", PAD + Vector2(0, PAD_R + 46), 40, Color("ef6c00"), 500)
 	elif s in ["blank", "show"]:
 		Art.text(self, "Wait", PAD, 40, Color("90a4ae"), 400)
 
@@ -583,17 +493,6 @@ func _draw_pad(s: String) -> void:
 			Art.text(self, Library.name_of(id), p + Vector2(0, rad + 34), 28, Art.INK, 400)
 
 
-func _draw_done() -> void:
-	Art.panel(self, Rect2(620, 180, 950, 790), Color(1, 1, 1, 0.92))
-	Art.text(self, "Level finished", Vector2(1095, 250), 50, Art.INK)
-	if _in_state() < 2.0:
-		Art.draw_sheet(self, "vfx_level_complete_4x4.png", int(_in_state() * 12.0), Vector2(1095, 430), 640)
-	for i in 3:
-		var p := Vector2(1095 + (i - 1) * 190, 430)
-		Art.draw_star(self, p, 78, Color("e0e0e0"))
-		var grow := clampf(_in_state() * 2.0 - i * 0.5, 0.0, 1.0)
-		if i < stars() and grow > 0.01:
-			Art.draw_star(self, p, 78 * grow, Art.GOLD)
-	Art.text(self, "Right first time: %d of %d" % [first_try(), ROUNDS], Vector2(1095, 600), 36, Art.INK)
-	Art.text(self, "Average time: %.1f s" % average_seconds(), Vector2(1095, 668), 36, Art.INK)
-	Art.text(self, "Saved for the therapist", Vector2(1095, 750), 24, Color("78909c"))
+func _open_setup() -> void:
+	preload("res://games/pegboard/scripts/peg_setup.gd").back_to = scene_file_path
+	get_tree().change_scene_to_file("res://games/pegboard/scenes/peg_setup.tscn")

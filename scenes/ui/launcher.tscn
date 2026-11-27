@@ -3,63 +3,18 @@
 [ext_resource type="Script" path="res://scripts/shared/launcher.gd" id="logic"]
 [ext_resource type="Script" path="res://scripts/shared/game_card.gd" id="card"]
 [ext_resource type="Script" path="res://scripts/shared/launcher_art.gd" id="art"]
-[ext_resource type="Theme" path="res://assets/themes/garden_2d_theme.tres" id="theme"]
-[ext_resource type="Texture2D" path="res://assets/images/launcher/backdrop.png" id="backdrop"]
-[ext_resource type="Texture2D" path="res://assets/images/cognitive/shared/ui_bar.png" id="bar"]
-[ext_resource type="Texture2D" path="res://assets/images/cognitive/shared/ui_panel.png" id="panel"]
-[ext_resource type="Texture2D" path="res://assets/images/cognitive/shared/ui_icons_4x4.png" id="icons"]
+[ext_resource type="Script" path="res://scripts/shared/category_tile.gd" id="tile"]
+[ext_resource type="Theme" path="res://assets/themes/neon_theme.tres" id="theme"]
 [ext_resource type="AudioStream" path="res://assets/audio/select_001.ogg" id="click"]
+[ext_resource type="Texture2D" path="res://assets/images/launcher/cup.png" id="cup"]
 
-[sub_resource type="StyleBoxFlat" id="pill_Attention"]
-bg_color = Color(0.6039, 0.3216, 0.0000, 1)
-corner_radius_top_left = 31
-corner_radius_top_right = 31
-corner_radius_bottom_right = 31
-corner_radius_bottom_left = 31
-
-[sub_resource type="AtlasTexture" id="icon_Attention"]
-atlas = ExtResource("icons")
-region = Rect2(768, 512, 256, 256)
-
-[sub_resource type="StyleBoxFlat" id="pill_Memory"]
-bg_color = Color(0.1804, 0.4196, 0.1216, 1)
-corner_radius_top_left = 31
-corner_radius_top_right = 31
-corner_radius_bottom_right = 31
-corner_radius_bottom_left = 31
-
-[sub_resource type="AtlasTexture" id="icon_Memory"]
-atlas = ExtResource("icons")
-region = Rect2(256, 512, 256, 256)
-
-[sub_resource type="StyleBoxFlat" id="pill_Perception"]
-bg_color = Color(0.1216, 0.3529, 0.5882, 1)
-corner_radius_top_left = 31
-corner_radius_top_right = 31
-corner_radius_bottom_right = 31
-corner_radius_bottom_left = 31
-
-[sub_resource type="AtlasTexture" id="icon_Perception"]
-atlas = ExtResource("icons")
-region = Rect2(512, 512, 256, 256)
-
-[sub_resource type="StyleBoxFlat" id="pill_Movement"]
-bg_color = Color(0.3569, 0.2431, 0.6196, 1)
-corner_radius_top_left = 31
-corner_radius_top_right = 31
-corner_radius_bottom_right = 31
-corner_radius_bottom_left = 31
-
-[sub_resource type="AtlasTexture" id="icon_Movement"]
-atlas = ExtResource("icons")
-region = Rect2(0, 768, 256, 256)
-
-[sub_resource type="StyleBoxFlat" id="disc"]
-bg_color = Color(1, 0.98, 0.92, 1)
-corner_radius_top_left = 27
-corner_radius_top_right = 27
-corner_radius_bottom_right = 27
-corner_radius_bottom_left = 27
+[sub_resource type="StyleBoxFlat" id="tag"]
+content_margin_left = 40.0
+content_margin_right = 40.0
+bg_color = Color(0.62, 0.12, 0.78, 1)
+skew = Vector2(0.35, 0)
+shadow_color = Color(0.93, 0.35, 1, 0.4)
+shadow_size = 14
 
 [node name="GameLibrary" type="Control"]
 texture_filter = 4
@@ -72,92 +27,98 @@ grow_vertical = 2
 theme = ExtResource("theme")
 script = ExtResource("logic")
 
-[node name="Backdrop" type="TextureRect" parent="."]
-offset_left = 0.0
-offset_top = 0.0
-offset_right = 1920.0
-offset_bottom = 1080.0
-mouse_filter = 2
-texture = ExtResource("backdrop")
-expand_mode = 1
-stretch_mode = 6
-
-[node name="Life" type="Control" parent="."]
+[node name="Backdrop" type="Control" parent="."]
 offset_left = 0.0
 offset_top = 0.0
 offset_right = 1920.0
 offset_bottom = 1080.0
 mouse_filter = 2
 script = ExtResource("art")
-kind = "life"
+kind = "space"
 
 [node name="TopBar" type="Control" parent="."]
 unique_name_in_owner = true
 offset_left = 0.0
 offset_top = 0.0
 offset_right = 1920.0
-offset_bottom = 112.0
+offset_bottom = 96.0
 mouse_filter = 2
 
-[node name="Bar" type="TextureRect" parent="TopBar"]
+[node name="Bar" type="Control" parent="TopBar"]
 offset_left = 0.0
 offset_top = 0.0
 offset_right = 1920.0
-offset_bottom = 112.0
+offset_bottom = 96.0
 mouse_filter = 2
-texture = ExtResource("bar")
-expand_mode = 1
+script = ExtResource("art")
+kind = "bar"
 
 [node name="Logo" type="Control" parent="TopBar"]
-offset_left = 752.0
-offset_top = 4.0
-offset_right = 862.0
-offset_bottom = 104.0
+unique_name_in_owner = true
+offset_left = 24.0
+offset_top = 0.0
+offset_right = 114.0
+offset_bottom = 96.0
 mouse_filter = 2
 script = ExtResource("art")
 kind = "logo"
 
-[node name="Brand" type="Label" parent="TopBar"]
-offset_left = 880.0
+[node name="BackArrow" type="Button" parent="TopBar"]
+unique_name_in_owner = true
+visible = false
+offset_left = 26.0
+offset_top = 12.0
+offset_right = 98.0
+offset_bottom = 84.0
+theme_type_variation = &"IconButton"
+tooltip_text = "Back"
+text = "‹"
+theme_override_font_sizes/font_size = 50
+theme_override_constants/outline_size = 3
+theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
+
+[node name="Title" type="Label" parent="TopBar"]
+unique_name_in_owner = true
+offset_left = 128.0
 offset_top = 8.0
-offset_right = 1180.0
-offset_bottom = 96.0
+offset_right = 1200.0
+offset_bottom = 88.0
 text = "SITAR"
 vertical_alignment = 1
-theme_override_font_sizes/font_size = 62
-theme_override_colors/font_color = Color(0.09, 0.2, 0.3, 1)
+theme_override_font_sizes/font_size = 40
+theme_override_colors/font_color = Color(1, 1, 1, 1)
 
 [node name="More" type="Button" parent="TopBar"]
 unique_name_in_owner = true
-offset_left = 26.0
-offset_top = 11.0
-offset_right = 116.0
-offset_bottom = 101.0
+offset_left = 1712.0
+offset_top = 12.0
+offset_right = 1784.0
+offset_bottom = 84.0
 theme_type_variation = &"IconButton"
-tooltip_text = "More"
+tooltip_text = "Settings"
 
 [node name="Gear" type="Control" parent="TopBar/More"]
 offset_left = 0.0
 offset_top = 0.0
-offset_right = 90.0
-offset_bottom = 90.0
+offset_right = 72.0
+offset_bottom = 72.0
 mouse_filter = 2
 script = ExtResource("art")
 kind = "gear"
 
 [node name="Mute" type="Button" parent="TopBar"]
 unique_name_in_owner = true
-offset_left = 1804.0
-offset_top = 11.0
-offset_right = 1894.0
-offset_bottom = 101.0
+offset_left = 1820.0
+offset_top = 12.0
+offset_right = 1892.0
+offset_bottom = 84.0
 theme_type_variation = &"IconButton"
 tooltip_text = "Sound"
 toggle_mode = true
 expand_icon = true
 icon_alignment = 1
 
-[node name="Columns" type="Control" parent="."]
+[node name="Home" type="Control" parent="."]
 unique_name_in_owner = true
 offset_left = 0.0
 offset_top = 0.0
@@ -165,426 +126,425 @@ offset_right = 1920.0
 offset_bottom = 1080.0
 mouse_filter = 2
 
-[node name="Attention" type="Control" parent="Columns"]
-offset_left = 56.0
-offset_top = 0.0
-offset_right = 487.0
-offset_bottom = 1080.0
-mouse_filter = 2
-
-[node name="Heading" type="Panel" parent="Columns/Attention"]
-offset_left = 0.0
-offset_top = 132.0
-offset_right = 431.0
-offset_bottom = 194.0
-mouse_filter = 2
-theme_override_styles/panel = SubResource("pill_Attention")
-
-[node name="Disc" type="Panel" parent="Columns/Attention/Heading"]
-offset_left = 4.0
-offset_top = 4.0
-offset_right = 58.0
-offset_bottom = 58.0
-mouse_filter = 2
-theme_override_styles/panel = SubResource("disc")
-
-[node name="Icon" type="TextureRect" parent="Columns/Attention/Heading/Disc"]
-offset_left = 0.0
-offset_top = 0.0
-offset_right = 54.0
-offset_bottom = 54.0
-mouse_filter = 2
-texture = SubResource("icon_Attention")
-expand_mode = 1
-
-[node name="Name" type="Label" parent="Columns/Attention/Heading"]
-offset_left = 0.0
-offset_top = 0.0
-offset_right = 431.0
-offset_bottom = 62.0
-text = "Attention"
+[node name="Question" type="Label" parent="Home"]
+offset_left = 360.0
+offset_top = 128.0
+offset_right = 1560.0
+offset_bottom = 196.0
+text = "WHAT WOULD YOU LIKE TO PRACTISE?"
 horizontal_alignment = 1
 vertical_alignment = 1
 theme_override_font_sizes/font_size = 34
-theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_color = Color(0.96, 0.75, 1, 0.9)
 
-[node name="FocusFinder" type="Button" parent="Columns/Attention"]
+[node name="AttentionTile" type="Button" parent="Home"]
 unique_name_in_owner = true
+offset_left = 330.0
+offset_top = 206.0
+offset_right = 1590.0
+offset_bottom = 330.0
+script = ExtResource("tile")
+heading = "Attention"
+icon_index = 11
+count = 2
+
+[node name="MemoryTile" type="Button" parent="Home"]
+unique_name_in_owner = true
+offset_left = 330.0
+offset_top = 348.0
+offset_right = 1590.0
+offset_bottom = 472.0
+script = ExtResource("tile")
+heading = "Memory"
+icon_index = 9
+count = 2
+
+[node name="PerceptionTile" type="Button" parent="Home"]
+unique_name_in_owner = true
+offset_left = 330.0
+offset_top = 490.0
+offset_right = 1590.0
+offset_bottom = 614.0
+script = ExtResource("tile")
+heading = "Perception"
+icon_index = 10
+count = 2
+
+[node name="MovementTile" type="Button" parent="Home"]
+unique_name_in_owner = true
+offset_left = 330.0
+offset_top = 632.0
+offset_right = 1590.0
+offset_bottom = 756.0
+script = ExtResource("tile")
+heading = "Movement"
+icon_index = 12
+count = 2
+
+[node name="NumbersTile" type="Button" parent="Home"]
+unique_name_in_owner = true
+offset_left = 330.0
+offset_top = 774.0
+offset_right = 1590.0
+offset_bottom = 898.0
+script = ExtResource("tile")
+heading = "Numbers"
+glyph = "1+2"
+count = 2
+
+[node name="PegboardTile" type="Button" parent="Home"]
+unique_name_in_owner = true
+offset_left = 330.0
+offset_top = 916.0
+offset_right = 1590.0
+offset_bottom = 1040.0
+script = ExtResource("tile")
+heading = "Pegboard"
+picture = ExtResource("cup")
+count = 3
+
+[node name="Shelf" type="Control" parent="."]
+unique_name_in_owner = true
+visible = false
 offset_left = 0.0
-offset_top = 210.0
-offset_right = 431.0
-offset_bottom = 477.3
-theme_type_variation = &"CardButton"
+offset_top = 0.0
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+
+[node name="ShelfTitle" type="Label" parent="Shelf"]
+unique_name_in_owner = true
+offset_left = 90.0
+offset_top = 140.0
+offset_right = 560.0
+offset_bottom = 214.0
+text = "ATTENTION"
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 40
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_styles/normal = SubResource("tag")
+
+[node name="Attention" type="Control" parent="Shelf"]
+visible = false
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+
+[node name="FocusFinder" type="Button" parent="Shelf/Attention"]
+unique_name_in_owner = true
+offset_left = 392.0
+offset_top = 280.0
+offset_right = 932.0
+offset_bottom = 750.0
+flat = true
 script = ExtResource("card")
 game = "focus"
 title = "Focus Finder"
-skill = Color(0.6039, 0.3216, 0.0000, 1)
 
-[node name="DosaMaster" type="Button" parent="Columns/Attention"]
+[node name="DosaMaster" type="Button" parent="Shelf/Attention"]
 unique_name_in_owner = true
-offset_left = 0.0
-offset_top = 497.3
-offset_right = 431.0
-offset_bottom = 764.7
-theme_type_variation = &"CardButton"
+offset_left = 988.0
+offset_top = 280.0
+offset_right = 1528.0
+offset_bottom = 750.0
+flat = true
 script = ExtResource("card")
 game = "dosa"
 title = "Dosa Master"
-skill = Color(0.6039, 0.3216, 0.0000, 1)
 
-[node name="ButterflyGarden" type="Button" parent="Columns/Attention"]
-unique_name_in_owner = true
-offset_left = 0.0
-offset_top = 784.7
-offset_right = 431.0
-offset_bottom = 1052.0
-theme_type_variation = &"CardButton"
-script = ExtResource("card")
-game = "butterfly"
-title = "Butterfly Garden"
-skill = Color(0.6039, 0.3216, 0.0000, 1)
-
-[node name="Memory" type="Control" parent="Columns"]
-offset_left = 515.0
-offset_top = 0.0
-offset_right = 946.0
-offset_bottom = 1080.0
-mouse_filter = 2
-
-[node name="Heading" type="Panel" parent="Columns/Memory"]
-offset_left = 0.0
-offset_top = 132.0
-offset_right = 431.0
-offset_bottom = 194.0
-mouse_filter = 2
-theme_override_styles/panel = SubResource("pill_Memory")
-
-[node name="Disc" type="Panel" parent="Columns/Memory/Heading"]
-offset_left = 4.0
-offset_top = 4.0
-offset_right = 58.0
-offset_bottom = 58.0
-mouse_filter = 2
-theme_override_styles/panel = SubResource("disc")
-
-[node name="Icon" type="TextureRect" parent="Columns/Memory/Heading/Disc"]
-offset_left = 0.0
-offset_top = 0.0
-offset_right = 54.0
-offset_bottom = 54.0
-mouse_filter = 2
-texture = SubResource("icon_Memory")
-expand_mode = 1
-
-[node name="Name" type="Label" parent="Columns/Memory/Heading"]
-offset_left = 0.0
-offset_top = 0.0
-offset_right = 431.0
-offset_bottom = 62.0
-text = "Memory"
-horizontal_alignment = 1
-vertical_alignment = 1
-theme_override_font_sizes/font_size = 34
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-
-[node name="Garden" type="Button" parent="Columns/Memory"]
-unique_name_in_owner = true
-offset_left = 0.0
-offset_top = 210.0
-offset_right = 431.0
-offset_bottom = 621.0
-theme_type_variation = &"CardButton"
-script = ExtResource("card")
-game = "memory"
-title = "Memory Meadow"
-skill = Color(0.1804, 0.4196, 0.1216, 1)
-
-[node name="MelodySteps" type="Button" parent="Columns/Memory"]
-unique_name_in_owner = true
-offset_left = 0.0
-offset_top = 641.0
-offset_right = 431.0
-offset_bottom = 1052.0
-theme_type_variation = &"CardButton"
-script = ExtResource("card")
-game = "melody"
-title = "Melody Steps"
-skill = Color(0.1804, 0.4196, 0.1216, 1)
-
-[node name="Perception" type="Control" parent="Columns"]
-offset_left = 974.0
-offset_top = 0.0
-offset_right = 1405.0
-offset_bottom = 1080.0
-mouse_filter = 2
-
-[node name="Heading" type="Panel" parent="Columns/Perception"]
-offset_left = 0.0
-offset_top = 132.0
-offset_right = 431.0
-offset_bottom = 194.0
-mouse_filter = 2
-theme_override_styles/panel = SubResource("pill_Perception")
-
-[node name="Disc" type="Panel" parent="Columns/Perception/Heading"]
-offset_left = 4.0
-offset_top = 4.0
-offset_right = 58.0
-offset_bottom = 58.0
-mouse_filter = 2
-theme_override_styles/panel = SubResource("disc")
-
-[node name="Icon" type="TextureRect" parent="Columns/Perception/Heading/Disc"]
-offset_left = 0.0
-offset_top = 0.0
-offset_right = 54.0
-offset_bottom = 54.0
-mouse_filter = 2
-texture = SubResource("icon_Perception")
-expand_mode = 1
-
-[node name="Name" type="Label" parent="Columns/Perception/Heading"]
-offset_left = 0.0
-offset_top = 0.0
-offset_right = 431.0
-offset_bottom = 62.0
-text = "Perception"
-horizontal_alignment = 1
-vertical_alignment = 1
-theme_override_font_sizes/font_size = 34
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-
-[node name="Sounds" type="Button" parent="Columns/Perception"]
-unique_name_in_owner = true
-offset_left = 0.0
-offset_top = 210.0
-offset_right = 431.0
-offset_bottom = 477.3
-theme_type_variation = &"CardButton"
-script = ExtResource("card")
-game = "sounds"
-title = "Listen & Discover"
-skill = Color(0.1216, 0.3529, 0.5882, 1)
-
-[node name="Patterns" type="Button" parent="Columns/Perception"]
-unique_name_in_owner = true
-offset_left = 0.0
-offset_top = 497.3
-offset_right = 431.0
-offset_bottom = 764.7
-theme_type_variation = &"CardButton"
-script = ExtResource("card")
-game = "patterns"
-title = "Connect the Picture"
-skill = Color(0.1216, 0.3529, 0.5882, 1)
-
-[node name="ShapeMatch" type="Button" parent="Columns/Perception"]
-unique_name_in_owner = true
-offset_left = 0.0
-offset_top = 784.7
-offset_right = 431.0
-offset_bottom = 1052.0
-theme_type_variation = &"CardButton"
-script = ExtResource("card")
-game = "shape"
-title = "Shape Match"
-skill = Color(0.1216, 0.3529, 0.5882, 1)
-
-[node name="Movement" type="Control" parent="Columns"]
-offset_left = 1433.0
-offset_top = 0.0
-offset_right = 1864.0
-offset_bottom = 1080.0
-mouse_filter = 2
-
-[node name="Heading" type="Panel" parent="Columns/Movement"]
-offset_left = 0.0
-offset_top = 132.0
-offset_right = 431.0
-offset_bottom = 194.0
-mouse_filter = 2
-theme_override_styles/panel = SubResource("pill_Movement")
-
-[node name="Disc" type="Panel" parent="Columns/Movement/Heading"]
-offset_left = 4.0
-offset_top = 4.0
-offset_right = 58.0
-offset_bottom = 58.0
-mouse_filter = 2
-theme_override_styles/panel = SubResource("disc")
-
-[node name="Icon" type="TextureRect" parent="Columns/Movement/Heading/Disc"]
-offset_left = 0.0
-offset_top = 0.0
-offset_right = 54.0
-offset_bottom = 54.0
-mouse_filter = 2
-texture = SubResource("icon_Movement")
-expand_mode = 1
-
-[node name="Name" type="Label" parent="Columns/Movement/Heading"]
-offset_left = 0.0
-offset_top = 0.0
-offset_right = 431.0
-offset_bottom = 62.0
-text = "Movement"
-horizontal_alignment = 1
-vertical_alignment = 1
-theme_override_font_sizes/font_size = 34
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-
-[node name="Ocean" type="Button" parent="Columns/Movement"]
-unique_name_in_owner = true
-offset_left = 0.0
-offset_top = 210.0
-offset_right = 431.0
-offset_bottom = 477.3
-theme_type_variation = &"CardButton"
-script = ExtResource("card")
-game = "ocean"
-title = "Ocean Rescue"
-skill = Color(0.3569, 0.2431, 0.6196, 1)
-
-[node name="Adventure" type="Button" parent="Columns/Movement"]
-unique_name_in_owner = true
-offset_left = 0.0
-offset_top = 497.3
-offset_right = 431.0
-offset_bottom = 764.7
-theme_type_variation = &"CardButton"
-script = ExtResource("card")
-game = "seed"
-title = "Seed Quest"
-skill = Color(0.3569, 0.2431, 0.6196, 1)
-
-[node name="SentinelDash" type="Button" parent="Columns/Movement"]
-unique_name_in_owner = true
-offset_left = 0.0
-offset_top = 784.7
-offset_right = 431.0
-offset_bottom = 1052.0
-theme_type_variation = &"CardButton"
-script = ExtResource("card")
-game = "sentinel"
-title = "Sentinel Dash"
-skill = Color(0.3569, 0.2431, 0.6196, 1)
-
-[node name="MorePanel" type="Control" parent="."]
-unique_name_in_owner = true
+[node name="Memory" type="Control" parent="Shelf"]
+visible = false
 offset_left = 0.0
 offset_top = 0.0
 offset_right = 1920.0
 offset_bottom = 1080.0
+mouse_filter = 2
+
+[node name="MemoryMeadow" type="Button" parent="Shelf/Memory"]
+unique_name_in_owner = true
+offset_left = 392.0
+offset_top = 280.0
+offset_right = 932.0
+offset_bottom = 750.0
+flat = true
+script = ExtResource("card")
+game = "memory"
+title = "Memory Meadow"
+
+[node name="MelodySteps" type="Button" parent="Shelf/Memory"]
+unique_name_in_owner = true
+offset_left = 988.0
+offset_top = 280.0
+offset_right = 1528.0
+offset_bottom = 750.0
+flat = true
+script = ExtResource("card")
+game = "melody"
+title = "Melody Steps"
+
+[node name="Perception" type="Control" parent="Shelf"]
 visible = false
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+
+[node name="Sounds" type="Button" parent="Shelf/Perception"]
+unique_name_in_owner = true
+offset_left = 392.0
+offset_top = 280.0
+offset_right = 932.0
+offset_bottom = 750.0
+flat = true
+script = ExtResource("card")
+game = "sounds"
+title = "Listen & Discover"
+
+[node name="Patterns" type="Button" parent="Shelf/Perception"]
+unique_name_in_owner = true
+offset_left = 988.0
+offset_top = 280.0
+offset_right = 1528.0
+offset_bottom = 750.0
+flat = true
+script = ExtResource("card")
+game = "patterns"
+title = "Connect & Draw"
+
+[node name="Movement" type="Control" parent="Shelf"]
+visible = false
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+
+[node name="Ocean" type="Button" parent="Shelf/Movement"]
+unique_name_in_owner = true
+offset_left = 392.0
+offset_top = 280.0
+offset_right = 932.0
+offset_bottom = 750.0
+flat = true
+script = ExtResource("card")
+game = "ocean"
+title = "Ocean Rescue"
+
+[node name="SeedQuest" type="Button" parent="Shelf/Movement"]
+unique_name_in_owner = true
+offset_left = 988.0
+offset_top = 280.0
+offset_right = 1528.0
+offset_bottom = 750.0
+flat = true
+script = ExtResource("card")
+game = "seed"
+title = "Seed Quest"
+
+[node name="Numbers" type="Control" parent="Shelf"]
+visible = false
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+
+[node name="QuickSums" type="Button" parent="Shelf/Numbers"]
+unique_name_in_owner = true
+offset_left = 392.0
+offset_top = 280.0
+offset_right = 932.0
+offset_bottom = 750.0
+flat = true
+script = ExtResource("card")
+game = "sums"
+title = "Quick Sums"
+
+[node name="MarketBasket" type="Button" parent="Shelf/Numbers"]
+unique_name_in_owner = true
+offset_left = 988.0
+offset_top = 280.0
+offset_right = 1528.0
+offset_bottom = 750.0
+flat = true
+script = ExtResource("card")
+game = "market"
+title = "Market Basket"
+
+[node name="Pegboard" type="Control" parent="Shelf"]
+visible = false
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+
+[node name="ShapeMatch" type="Button" parent="Shelf/Pegboard"]
+unique_name_in_owner = true
+offset_left = 94.0
+offset_top = 280.0
+offset_right = 634.0
+offset_bottom = 750.0
+flat = true
+script = ExtResource("card")
+game = "shape"
+title = "Shape Match"
+
+[node name="ShapeSpots" type="Button" parent="Shelf/Pegboard"]
+unique_name_in_owner = true
+offset_left = 690.0
+offset_top = 280.0
+offset_right = 1230.0
+offset_bottom = 750.0
+flat = true
+script = ExtResource("card")
+game = "spots"
+title = "Shape Spots"
+
+[node name="HandShape" type="Button" parent="Shelf/Pegboard"]
+unique_name_in_owner = true
+offset_left = 1286.0
+offset_top = 280.0
+offset_right = 1826.0
+offset_bottom = 750.0
+flat = true
+script = ExtResource("card")
+game = "hands"
+title = "Hand & Shape"
+
+[node name="Back" type="Button" parent="Shelf"]
+unique_name_in_owner = true
+offset_left = 780.0
+offset_top = 880.0
+offset_right = 1140.0
+offset_bottom = 986.0
+text = "‹   back"
+theme_override_font_sizes/font_size = 40
+
+[node name="MorePanel" type="Control" parent="."]
+unique_name_in_owner = true
+visible = false
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 1920.0
+offset_bottom = 1080.0
 
 [node name="Shade" type="ColorRect" parent="MorePanel"]
 offset_left = 0.0
 offset_top = 0.0
 offset_right = 1920.0
 offset_bottom = 1080.0
-color = Color(0.1, 0.08, 0.02, 0.5)
+color = Color(0.03, 0, 0.07, 0.75)
 
-[node name="Paper" type="TextureRect" parent="MorePanel"]
-offset_left = 510.0
+[node name="Paper" type="Panel" parent="MorePanel"]
+offset_left = 560.0
 offset_top = 190.0
-offset_right = 1410.0
+offset_right = 1360.0
 offset_bottom = 890.0
-texture = ExtResource("panel")
-expand_mode = 1
+
+[node name="Heading" type="Label" parent="MorePanel/Paper"]
+offset_left = 0.0
+offset_top = 30.0
+offset_right = 800.0
+offset_bottom = 100.0
+text = "SETTINGS"
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 38
 
 [node name="PegTest" type="Button" parent="MorePanel/Paper"]
 unique_name_in_owner = true
-offset_left = 260.0
-offset_top = 62.0
-offset_right = 640.0
-offset_bottom = 168.0
-text = "Touch test"
+offset_left = 210.0
+offset_top = 130.0
+offset_right = 590.0
+offset_bottom = 226.0
+text = "touch test"
 
 [node name="Fullscreen" type="Button" parent="MorePanel/Paper"]
 unique_name_in_owner = true
-offset_left = 260.0
-offset_top = 178.0
-offset_right = 640.0
-offset_bottom = 284.0
-text = "Full screen"
+offset_left = 210.0
+offset_top = 246.0
+offset_right = 590.0
+offset_bottom = 342.0
+text = "full screen"
 
 [node name="Credits" type="Button" parent="MorePanel/Paper"]
 unique_name_in_owner = true
-offset_left = 260.0
-offset_top = 294.0
-offset_right = 640.0
-offset_bottom = 400.0
-text = "Credits"
-
-[node name="CloseMore" type="Button" parent="MorePanel/Paper"]
-unique_name_in_owner = true
-offset_left = 260.0
-offset_top = 520.0
-offset_right = 640.0
-offset_bottom = 626.0
-text = "Back"
-theme_type_variation = &"BlueButton"
+offset_left = 210.0
+offset_top = 362.0
+offset_right = 590.0
+offset_bottom = 458.0
+text = "credits"
 
 [node name="Note" type="Label" parent="MorePanel/Paper"]
-offset_left = 110.0
-offset_top = 412.0
-offset_right = 790.0
-offset_bottom = 502.0
+offset_left = 60.0
+offset_top = 470.0
+offset_right = 740.0
+offset_bottom = 560.0
 horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 3
 theme_override_font_sizes/font_size = 24
+theme_override_colors/font_color = Color(0.85, 0.75, 0.95, 1)
 text = "Practice activities, not a medical treatment.
 A therapist can help choose games and levels."
 
+[node name="CloseMore" type="Button" parent="MorePanel/Paper"]
+unique_name_in_owner = true
+offset_left = 210.0
+offset_top = 578.0
+offset_right = 590.0
+offset_bottom = 664.0
+text = "‹   back"
+
 [node name="CreditsPanel" type="Control" parent="."]
 unique_name_in_owner = true
+visible = false
 offset_left = 0.0
 offset_top = 0.0
 offset_right = 1920.0
 offset_bottom = 1080.0
-visible = false
 
 [node name="Shade" type="ColorRect" parent="CreditsPanel"]
 offset_left = 0.0
 offset_top = 0.0
 offset_right = 1920.0
 offset_bottom = 1080.0
-color = Color(0.1, 0.08, 0.02, 0.5)
+color = Color(0.03, 0, 0.07, 0.75)
 
-[node name="Paper" type="TextureRect" parent="CreditsPanel"]
+[node name="Paper" type="Panel" parent="CreditsPanel"]
 offset_left = 360.0
 offset_top = 130.0
 offset_right = 1560.0
 offset_bottom = 950.0
-texture = ExtResource("panel")
-expand_mode = 1
 
 [node name="CreditsTitle" type="Label" parent="CreditsPanel/Paper"]
 offset_left = 100.0
-offset_top = 60.0
+offset_top = 40.0
 offset_right = 1100.0
-offset_bottom = 130.0
+offset_bottom = 110.0
 horizontal_alignment = 1
-text = "Credits"
-theme_override_font_sizes/font_size = 46
+text = "CREDITS"
+theme_override_font_sizes/font_size = 42
 
 [node name="CreditsBody" type="Label" parent="CreditsPanel/Paper"]
 offset_left = 110.0
-offset_top = 140.0
+offset_top = 130.0
 offset_right = 1090.0
-offset_bottom = 640.0
+offset_bottom = 650.0
 theme_override_font_sizes/font_size = 25
 text = "Original 3D assets: Nova, drones, golden seeds and night courtyards.\nOcean boat: Kenney Watercraft Kit · Dolphin: Quaternius Fish Pack — CC0\nGarden models: Kenney Nature Kit — CC0 (kenney.nl/assets/nature-kit)\n\nSound effects: Kenney Interface Sounds — CC0\nTypeface: Nunito — SIL Open Font License 1.1\nSensory sounds: alex36917, Luftrum (CC BY 4.0), SDLx (CC BY 3.0)\nCC0 sounds: kvgarlic, AntumDeluge, Tozan, Joseph SARDIN\nAudio edits: Porrumentzio; full sources in docs/SENSORY_GAMES.md\n\nCognitive games are practice, not a validated medical treatment.\nSource links and licenses: docs/ASSET_CREDITS.md"
 
 [node name="CloseCredits" type="Button" parent="CreditsPanel/Paper"]
 unique_name_in_owner = true
 offset_left = 410.0
-offset_top = 670.0
+offset_top = 680.0
 offset_right = 790.0
 offset_bottom = 776.0
-text = "Back"
-theme_type_variation = &"BlueButton"
+text = "‹   back"
 
 [node name="Curtain" type="Control" parent="."]
 unique_name_in_owner = true
@@ -600,5 +560,3 @@ kind = "curtain"
 unique_name_in_owner = true
 stream = ExtResource("click")
 volume_db = -10.0
-
-  

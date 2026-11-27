@@ -1,24 +1,25 @@
 extends RefCounted
-## What the pegboard games know about the physical boards:
-##   * the leg triangle of every board (from pegboard/build_pegboards_freecad.py)
-##   * which object the caregiver screwed onto each board
-##   * the real width of the screen, which turns pixels into millimetres
+## What the pegboard games know about the physical boards. Nothing is fixed:
+## each board's leg triangle is RECORDED on this screen during set-up, together
+## with the object the caregiver screwed onto it. Record again whenever the
+## boards or objects change ("Start fresh" in set-up forgets everything).
+##
+##   * up to three recorded boards, kept in the slots "A", "B", "C"
+##   * per slot: the object and the recorded leg positions in screen pixels
+##   * the screen width, which turns pixels into millimetres for the tolerances
 ##
 ## Saved in user://peg_objects.json. The touch tester's own recordings
 ## (user://peg_patterns.json) are never touched.
 
 const SAVE_PATH := "user://peg_objects.json"
 const LOG_PATH := "user://peg_match_log.jsonl"
-const TOLERANCE_MM := 5.0          # boards differ by >= 10.9 mm
+const TOLERANCE_MM := 5.0          # a placement may differ this much from its recording
 const MARGIN_MM := 1.0             # the best board must beat the second best by this
+const CLASH_MM := 2.0 * TOLERANCE_MM + MARGIN_MM   # two recordings must differ this much
+const MIN_SIDE_MM := 12.0
+const MAX_SIDE_MM := 70.0
 const DEFAULT_WIDTH_MM := 920.0
-
-## Leg centres in mm, seen from above, Y up (same numbers as the FreeCAD file).
-const DESIGN := {
-	"A": [Vector2(-18.5, -19.5), Vector2(-2.5, 22.5), Vector2(15.0, -2.5)],
-	"B": [Vector2(22.5, 20.0), Vector2(-30.0, -3.0), Vector2(16.5, -22.5)],
-	"C": [Vector2(4.0, -30.0), Vector2(-14.5, 10.0), Vector2(13.5, 25.5)],
-}
+const SLOTS := ["A", "B", "C"]
 
 ## The objects that screw onto the boards. "clue" is used by the Clues level.
 const OBJECTS := {
@@ -34,16 +35,12 @@ const OBJECTS := {
 static var persist := true
 
 var width_mm := DEFAULT_WIDTH_MM
-var assigned: Dictionary = {"A": "", "B": "", "C": ""}   # board -> object id ("" = none)
-var _shapes: Dictionary = {}                             # board -> {"sig", "angle", "turn"}
+var assigned: Dictionary = {"A": "", "B": "", "C": ""}   # slot -> object id ("" = empty)
+var legs: Dictionary = {}                                # slot -> recorded legs (pixels)
+var _shapes: Dictionary = {}                             # slot -> {"sig", "angle", "turn"}
 
 
 func _init() -> void:
-	for b in DESIGN:
-		var legs: Array[Vector2] = []
-		for p: Vector2 in DESIGN[b]:
-			legs.append(Vector2(p.x, -p.y))              # screen Y points down
-		_shapes[b] = describe(legs)
 	if persist:
 		_load()
 
@@ -66,18 +63,18 @@ static func describe(p: Array[Vector2]) -> Dictionary:
 	}
 
 
-## Compares a triangle in PIXELS with board b. Returns the worst side error in mm.
+## Compares a triangle with the recording in slot b (both in pixels). Worst side error in mm.
 func error_mm(d: Dictionary, b: String, mm_per_px: float) -> float:
 	var r: Dictionary = _shapes[b]
 	if d.turn != r.turn:
 		return INF
 	var e := 0.0
 	for i in 3:
-		e = maxf(e, absf(float(d.sig[i]) * mm_per_px - float(r.sig[i])))
+		e = maxf(e, absf(float(d.sig[i]) - float(r.sig[i])) * mm_per_px)
 	return e
 
 
-## Returns ["A", error, rotation] or [] when no board fits clearly.
+## Returns ["A", error, rotation] or [] when no recorded board fits clearly.
 func identify(p: Array[Vector2], mm_per_px: float) -> Array:
 	var d := describe(p)
 	var best := ""
@@ -91,59 +88,65 @@ func identify(p: Array[Vector2], mm_per_px: float) -> Array:
 			best = b
 		elif e < e2:
 			e2 = e
-	if e1 > TOLERANCE_MM or e2 - e1 < MARGIN_MM:
+	if best == "" or e1 > TOLERANCE_MM or e2 - e1 < MARGIN_MM:
 		return []
 	return [best, e1, wrapf(float(d.angle) - float(_shapes[best].angle), -PI, PI)]
 
 
-## With boards A, B and C all standing on the glass, finds the screen width that
-## makes their sides come out right. Returns {} or {"width", "error"}.
-func measure_screen(points: Array[Vector2], view_width_px: float) -> Dictionary:
-	if points.size() != 9:
-		return {}
-	var best := {"cost": INF}
-	var all: Array[int] = []
-	all.assign(range(9))
-	for i in range(1, 8):
-		for j in range(i + 1, 9):
-			var rest := all.filter(func(n): return n != 0 and n != i and n != j)
-			for k in range(1, 5):
-				for m in range(k + 1, 6):
-					var third := rest.filter(func(n): return n != rest[0] and n != rest[k] and n != rest[m])
-					_try_scale(points, [[0, i, j], [rest[0], rest[k], rest[m]], third], best)
-	if best.cost > 2.5:
-		return {}
-	return {"width": best.scale * view_width_px, "error": best.cost}
+# --------------------------------------------------------- recording ------
 
-
-func _try_scale(points: Array[Vector2], groups: Array, best: Dictionary) -> void:
-	var ds: Array = []
-	for g in groups:
-		var t: Array[Vector2] = [points[g[0]], points[g[1]], points[g[2]]]
-		ds.append(describe(t))
-	for order in [["A", "B", "C"], ["A", "C", "B"], ["B", "A", "C"], ["B", "C", "A"], ["C", "A", "B"], ["C", "B", "A"]]:
-		var dot := 0.0
-		var sq := 0.0
-		var ok := true
-		for n in 3:
-			var r: Dictionary = _shapes[order[n]]
-			if ds[n].turn != r.turn:
-				ok = false
+## Records the legs of the board that carries `object`.
+## Returns {"slot": "A"} on success, or {"error": "...", ...} explaining why not:
+##   "size"  - the legs are too close together or too far apart to be one board
+##   "clash" - too much like the recorded board of {"object"}; it would be confused
+##   "full"  - three boards are already recorded; forget one first
+func record(object: String, p: Array[Vector2], mm_per_px: float) -> Dictionary:
+	if not OBJECTS.has(object) or p.size() != 3:
+		return {"error": "size"}
+	var d := describe(p)
+	for side in d.sig:
+		var mm := float(side) * mm_per_px
+		if mm < MIN_SIDE_MM or mm > MAX_SIDE_MM:
+			return {"error": "size"}
+	# The same object or the same physical board recorded again replaces that slot.
+	var slot := board_of(object)
+	var same: Array = identify(p, mm_per_px)
+	if slot == "" and not same.is_empty():
+		slot = same[0]
+	for b in _shapes:
+		if b != slot and error_mm(d, b, mm_per_px) < CLASH_MM:
+			return {"error": "clash", "object": assigned[b]}
+	if slot == "":
+		for b in SLOTS:
+			if not _shapes.has(b):
+				slot = b
 				break
-			for s in 3:
-				dot += float(ds[n].sig[s]) * float(r.sig[s])
-				sq += float(ds[n].sig[s]) * float(ds[n].sig[s])
-		if not ok or sq <= 0.0:
-			continue
-		var scale := dot / sq                              # mm per px
-		var sum := 0.0
-		for n in 3:
-			for s in 3:
-				sum += pow(float(ds[n].sig[s]) * scale - float(_shapes[order[n]].sig[s]), 2)
-		var cost := sqrt(sum / 9.0)
-		if cost < best.cost:
-			best.cost = cost
-			best.scale = scale
+	if slot == "":
+		return {"error": "full"}
+	var from := board_of(object)
+	if from != "" and from != slot:
+		forget(from)
+	assigned[slot] = object
+	legs[slot] = p.duplicate()
+	_shapes[slot] = d
+	save()
+	return {"slot": slot}
+
+
+func forget(slot: String) -> void:
+	assigned[slot] = ""
+	legs.erase(slot)
+	_shapes.erase(slot)
+	save()
+
+
+## Forgets every recording, so all boards are recorded fresh.
+func clear() -> void:
+	for b in SLOTS:
+		assigned[b] = ""
+	legs.clear()
+	_shapes.clear()
+	save()
 
 
 # ---------------------------------------------------------- objects -------
@@ -152,6 +155,8 @@ func object_of(board: String) -> String:
 	return assigned.get(board, "")
 
 func board_of(object: String) -> String:
+	if object == "":
+		return ""
 	for b in assigned:
 		if assigned[b] == object:
 			return b
@@ -159,21 +164,10 @@ func board_of(object: String) -> String:
 
 func objects() -> Array[String]:
 	var out: Array[String] = []
-	for b in assigned:
-		if assigned[b] != "":
+	for b in SLOTS:
+		if assigned[b] != "" and _shapes.has(b):
 			out.append(assigned[b])
 	return out
-
-## Puts an object on a board. Returns the board it was taken from, or "".
-func assign(board: String, object: String) -> String:
-	var from := board_of(object)
-	if from == board:
-		from = ""
-	elif from != "":
-		assigned[from] = ""
-	assigned[board] = object
-	save()
-	return from
 
 static func name_of(object: String) -> String:
 	return OBJECTS[object].name if OBJECTS.has(object) else ""
@@ -187,10 +181,17 @@ static func color_of(object: String) -> Color:
 func save() -> void:
 	if not persist:
 		return
+	var boards := {}
+	for b in legs:
+		var pts := []
+		for p: Vector2 in legs[b]:
+			pts.append([snappedf(p.x, 0.01), snappedf(p.y, 0.01)])
+		boards[b] = {"object": assigned[b], "legs": pts}
 	var f := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
 	if f:
-		f.store_string(JSON.stringify({"width_mm": width_mm, "objects": assigned}, "\t"))
+		f.store_string(JSON.stringify({"width_mm": width_mm, "boards": boards}, "\t"))
 
+## Older files (fixed board designs, "objects" only) hold no recordings and are ignored.
 func _load() -> void:
 	if not FileAccess.file_exists(SAVE_PATH):
 		return
@@ -198,11 +199,22 @@ func _load() -> void:
 	if not d is Dictionary:
 		return
 	width_mm = clampf(float(d.get("width_mm", width_mm)), 200.0, 3000.0)
-	var o: Variant = d.get("objects", {})
-	if o is Dictionary:
-		for b in assigned:
-			var id := str(o.get(b, ""))
-			assigned[b] = id if OBJECTS.has(id) else ""
+	var boards: Variant = d.get("boards", {})
+	if not boards is Dictionary:
+		return
+	for b in SLOTS:
+		var e: Variant = boards.get(b)
+		if not e is Dictionary or not OBJECTS.has(str(e.get("object", ""))):
+			continue
+		var raw: Variant = e.get("legs", [])
+		if not raw is Array or raw.size() != 3:
+			continue
+		var pts: Array[Vector2] = []
+		for q in raw:
+			pts.append(Vector2(float(q[0]), float(q[1])))
+		assigned[b] = str(e.object)
+		legs[b] = pts
+		_shapes[b] = describe(pts)
 
 ## Appends one finished session (one JSON object per line).
 static func log_session(entry: Dictionary) -> void:

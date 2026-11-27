@@ -1,0 +1,6 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://games/cognitive/scenes/cognitive_hub.tscn" id="base"]
+
+[node name="MelodySteps" instance=ExtResource("base")]
+game = 1

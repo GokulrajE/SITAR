@@ -1,12 +1,14 @@
 extends Control
+## Ocean Rescue: steer the boat to scoop floating litter, around the buoys.
 ## Scene-authored presentation; this script owns input, session rules and animation time.
+const Shell = preload("res://scripts/shared/game_shell.gd")
 const LITTER = [preload("res://games/ocean_rescue/scenes/3d/bottle_detailed.tscn"), preload("res://games/ocean_rescue/scenes/3d/container_detailed.tscn")]
 const BUOY = preload("res://games/ocean_rescue/scenes/3d/buoy.tscn")
 const SPLASH = preload("res://games/ocean_rescue/scenes/3d/splash.tscn")
 const BOUNDS = Rect2(-12.0, -6.0, 24.0, 16.0)
 const GOALS = [8, 12, 16]
 const DURATIONS = [90.0, 80.0, 70.0]
-@export var auto_fullscreen := true
+var shell: Control
 var state := "ready"
 var level := 0
 var score := 0
@@ -27,18 +29,18 @@ func _ready() -> void:
 	var config := ConfigFile.new()
 	if config.load("user://ocean_progress.cfg") == OK:
 		best = config.get_value("progress", "best", {})
-	%Start.pressed.connect(start_session)
-	%Pause.pressed.connect(toggle_pause)
-	%Stop.pressed.connect(func(): finish(false))
-	%Resume.pressed.connect(func():
-		if state == "paused": toggle_pause()
-		else: start_session())
-	%Back.pressed.connect(prepare)
-	%Home.pressed.connect(func(): get_tree().change_scene_to_file("res://scenes/ui/launcher.tscn"))
-	%Next.pressed.connect(func(): level = mini(2, level + 1); start_session())
-	%Level.item_selected.connect(func(index: int): level = index; prepare())
-	%Mute.button_pressed = AudioServer.is_bus_mute(0)
-	%Mute.toggled.connect(func(value: bool): AudioServer.set_bus_mute(0, value))
+	shell = Shell.new()
+	shell.title = "Ocean Rescue"
+	shell.levels = ["Calm lagoon", "Busy bay", "Open sea"]
+	shell.notes = ["8 items, 2 buoys", "12 items, 4 buoys", "16 items, 6 buoys"]
+	shell.accent = Color("0f7d93")
+	shell.dim = 0.25
+	add_child(shell)
+	shell.start_pressed.connect(func(chosen: int):
+		level = chosen
+		start_session())
+	shell.pause_changed.connect(func(_paused: bool): toggle_pause())
+	shell.stop_pressed.connect(prepare)
 	%Ambience.finished.connect(func():
 		if state == "playing": %Ambience.play())
 	prepare()
@@ -76,15 +78,11 @@ func prepare() -> void:
 	%Water.mesh.material.set_shader_parameter("game_time", 0.0)
 	%Ambience.stop()
 	reset_input()
-	%Level.select(level)
-	%Goal.text = "%d items · %ds · %d navigation buoys" % [GOALS[level], int(remaining), 2 + level * 2]
 	update_hud()
 
 func start_session() -> void:
 	prepare()
 	state = "playing"
-	if auto_fullscreen and DisplayServer.get_name() != "headless" and get_viewport() == get_window():
-		get_window().mode = Window.MODE_FULLSCREEN
 	for index in range(2 + level * 2):
 		var buoy := BUOY.instantiate()
 		buoy.position = free_position(4.0)
@@ -241,9 +239,6 @@ func _unhandled_input(event: InputEvent) -> void:
 		if set_target(event.position): get_viewport().set_input_as_handled()
 	elif event is InputEventScreenDrag:
 		if set_target(event.position): get_viewport().set_input_as_handled()
-	elif event.is_action_pressed("ui_cancel") and state in ["playing", "paused"]:
-		toggle_pause()
-		get_viewport().set_input_as_handled()
 
 func reset_input() -> void:
 	moving = false
@@ -258,9 +253,6 @@ func toggle_pause() -> void:
 		reset_input()
 		%Ambience.stream_paused = true
 		for sound in [%CollectSound, %SplashSound, %CelebrationSound, %BumpSound]: sound.stop()
-		%ResultTitle.text = "A moment by the sea"
-		%ResultText.text = "Click or drag to steer. Collect floating litter.\nOrange buoys block your route; steer around them.\n\n%d / %d collected · %ds left" % [collected, GOALS[level], ceili(remaining)]
-		%Resume.text = "Resume voyage"
 	elif state == "paused":
 		state = "playing"
 		%Ambience.stream_paused = false
@@ -277,20 +269,16 @@ func finish(success: bool) -> void:
 	var config := ConfigFile.new()
 	config.set_value("progress", "best", best)
 	save_ok = config.save("user://ocean_progress.cfg") == OK
-	%ResultTitle.text = "A cleaner lagoon!" if success else "Every pickup helps"
-	%ResultText.text = "%d / %d items recovered · %d points\nLevel %d best: %d\n%s" % [collected, GOALS[level], score, level + 1, best[key], "Progress saved." if save_ok else "Could not save progress on this device."]
-	%Resume.text = "Play again"
+	var stars := 0
+	if success: stars = 3 if remaining >= DURATIONS[level] * 0.4 else (2 if remaining >= DURATIONS[level] * 0.15 else 1)
+	shell.finish(stars, "A cleaner lagoon!" if success else "Time is up",
+		"%d of %d items  •  %d points  •  best %d" % [collected, GOALS[level], score, best[key]])
 	update_hud()
 
 func update_hud() -> void:
-	%Setup.visible = state == "ready"
+	%Setup.visible = state in ["ready", "finished"]
 	%HUD.visible = state == "playing"
-	%Overlay.visible = state in ["paused", "finished"]
-	%Next.visible = state == "finished" and completed and level < 2
 	%Score.text = "%04d" % score
-	%Time.text = "%ds" % ceili(remaining)
-	%Collected.text = "%d / %d" % [collected, GOALS[level]]
-	%Progress.value = 100.0 * collected / GOALS[level]
+	if shell: shell.set_status("Litter %d of %d   •   %ds" % [collected, GOALS[level], ceili(remaining)])
 
-func _notification(what: int) -> void:
-	if what == NOTIFICATION_APPLICATION_FOCUS_OUT and state == "playing": toggle_pause()
+

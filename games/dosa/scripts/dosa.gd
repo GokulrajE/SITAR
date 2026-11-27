@@ -205,6 +205,7 @@ func _enter(s: DosaState) -> void:
 				queue_free(), CONNECT_ONE_SHOT)
 
 func _process(delta: float) -> void:
+	queue_redraw()
 	if is_selected:
 		return
 	stage_elapsed += delta
@@ -232,6 +233,26 @@ func _process(delta: float) -> void:
 				burning_started.emit(self)
 			if stage_elapsed >= _dur[DosaState.BURNING]:
 				_enter(DosaState.DESTROYING)
+
+## A ring around the pan tells the cooking stage without judging colours:
+## filling while cooking, green while ready, red while burning.
+const RING_RADIUS := 158.0
+func _draw() -> void:
+	var back := Color(0, 0, 0, 0.35)
+	match state:
+		DosaState.COOKING:
+			var p: float = clampf(stage_elapsed / (_dur[DosaState.COOKING] as float), 0.0, 1.0)
+			draw_arc(Vector2.ZERO, RING_RADIUS, 0, TAU, 72, back, 16.0, true)
+			draw_arc(Vector2.ZERO, RING_RADIUS, -PI / 2, -PI / 2 + TAU * p, 72, Color(1.0, 0.86, 0.45), 12.0, true)
+		DosaState.READY:
+			var pulse := 0.5 + 0.5 * sin(stage_elapsed * 10.0)
+			draw_arc(Vector2.ZERO, RING_RADIUS + 6, 0, TAU, 72, Color(0.3, 1.0, 0.45, 0.35 * pulse), 34.0, true)
+			draw_arc(Vector2.ZERO, RING_RADIUS, 0, TAU, 72, Color(0.25, 0.9, 0.4), 16.0, true)
+		DosaState.BURNING:
+			var p: float = clampf(stage_elapsed / (_dur[DosaState.BURNING] as float), 0.0, 1.0)
+			draw_arc(Vector2.ZERO, RING_RADIUS, 0, TAU, 72, back, 16.0, true)
+			draw_arc(Vector2.ZERO, RING_RADIUS, -PI / 2, -PI / 2 + TAU * (1.0 - p), 72, Color(0.95, 0.25, 0.15), 14.0, true)
+
 
 func _start_idle_breathing() -> void:
 	_idle_tween = create_tween().set_loops()

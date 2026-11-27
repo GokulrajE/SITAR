@@ -1,4 +1,10 @@
-[gd_scene load_steps=2 format=3]
-[ext_resource type="PackedScene" path="res://games/sensory/scenes/sensory.tscn" id="base"]
-[node name="SoundDiscovery" instance=ExtResource("base")]
-game = 1
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://games/sensory/scripts/sounds.gd" id="logic"]
+
+[node name="SoundDiscovery" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+script = ExtResource("logic")

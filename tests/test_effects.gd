@@ -4,20 +4,21 @@ func _initialize() -> void:
 	call_deferred("run_tests")
 func run_tests() -> void:
 	game = load("res://games/adventure/scenes/adventure.tscn").instantiate()
-	game.auto_fullscreen = false
 	root.add_child(game)
 	game.set_process(false)
 	for sound in game.find_children("*Sound", "AudioStreamPlayer", true, false):
 		assert(sound.stream != null)
 		sound.stream = null
-	game.start_session()
-	assert(game.get_node("%HUD").visible and not game.get_node("%Setup").visible)
+	game.shell.auto_fullscreen = false
+	game.shell.begin()
+	assert(game.get_node("%HUD").visible and game.shell.state == "playing")
 	assert(not game.has_node("Feedback") and not game.has_node("MissionCard"))
 	var hud_labels := []
 	for label in game.find_children("*", "Label", true, false):
-		if label.is_visible_in_tree(): hud_labels.append(String(label.name))
+		if label.is_visible_in_tree() and not game.shell.is_ancestor_of(label): hud_labels.append(String(label.name))
 	hud_labels.sort()
-	assert(hud_labels == ["LevelHUD", "Score", "ScoreCaption", "Status", "Time", "TimeCaption"])
+	# Time and level now live in the shell's status pill.
+	assert(hud_labels == ["Score", "ScoreCaption", "Status"])
 	assert(game.ready_notifications == 1)
 	game.crystals[0].position = game.player.position
 	game.check_collisions()
@@ -48,11 +49,11 @@ func run_tests() -> void:
 	game.collected = 9
 	game.crystals[0].position = game.player.position
 	game.check_collisions()
-	assert(game.win_delay > 0 and not game.get_node("%Overlay").visible)
+	assert(game.win_delay > 0 and game.shell.state != "results")
 	game._process(0.45)
 	assert(game.state == "playing")
 	game._process(0.5)
-	assert(game.state == "finished" and game.get_node("%Overlay").visible)
+	assert(game.state == "finished" and game.shell.state == "results")
 	game.start_session()
 	assert(game.score == 0 and game.win_delay == 0 and game.ready_notifications == 1)
 	game.queue_free()

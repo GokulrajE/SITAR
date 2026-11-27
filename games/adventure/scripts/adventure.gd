@@ -1,10 +1,12 @@
 extends Control
-## Session state, input, movement and collision rules. All presentation is in scenes.
+## Seed Quest: Nova collects golden seeds in a night garden while dodging drones.
+## Level 3 brings the heavier drone traffic that used to be "Sentinel Dash".
+## Session state, input, movement and collision rules. Menus come from the shared shell.
+const Shell = preload("res://scripts/shared/game_shell.gd")
 const ENEMY = preload("res://games/adventure/scenes/3d/enemy.tscn")
 const COLLECT_EFFECT = preload("res://games/adventure/scenes/3d/collect_effect.tscn")
 const READY_EFFECT = preload("res://games/adventure/scenes/3d/ready_effect.tscn")
 const PULSE_EFFECT = preload("res://games/adventure/scenes/3d/pulse_burst.tscn")
-@export var auto_fullscreen := true
 var win_delay := 0.0
 var defeat_delay := 0.0
 var hit_time := 0.0
@@ -13,7 +15,7 @@ const CRYSTAL = preload("res://games/adventure/scenes/3d/crystal.tscn")
 const BOUNDS := Rect2(-13.2, -5.6, 26.4, 14.8)
 const PLAYER_SPEED := 5.8
 const PULSE_RADIUS := 3.0
-var mode := 0
+var shell: Control
 var level := 0
 var completed_level := false
 var enemy_serial := 0
@@ -40,26 +42,21 @@ func _ready() -> void:
 	var config := ConfigFile.new()
 	if config.load("user://adventure_progress.cfg") == OK:
 		best = config.get_value("progress", "best", {})
-	%Start.pressed.connect(start_session)
-	%Pause.pressed.connect(toggle_pause)
-	%Stop.pressed.connect(func(): finish("Session stopped"))
 	%Pulse.pressed.connect(send_pulse)
-	%Resume.pressed.connect(func():
-		if state == "paused": toggle_pause()
-		else: start_session())
-	%Back.pressed.connect(func():
-		if state == "paused": finish("Session stopped")
+	shell = Shell.new()
+	shell.title = "Seed Quest"
+	shell.levels = ["Scout", "Ranger", "Sentinel"]
+	shell.notes = ["10 seeds", "14 seeds", "18 seeds, more drones"]
+	shell.accent = Color("5b4bc4")
+	shell.dim = 0.3
+	add_child(shell)
+	shell.start_pressed.connect(func(chosen: int):
+		level = chosen
+		start_session())
+	shell.pause_changed.connect(func(_paused: bool): toggle_pause())
+	shell.stop_pressed.connect(func():
+		state = "ready"
 		prepare())
-	%Home.pressed.connect(func(): get_tree().change_scene_to_file("res://scenes/ui/launcher.tscn"))
-	%Mode.item_selected.connect(func(index: int): mode = index; prepare())
-	%LevelSelect.item_selected.connect(func(index: int): level = index; prepare())
-	%NextLevel.pressed.connect(func(): level = mini(2, level + 1); start_session())
-	%Mute.button_pressed = AudioServer.is_bus_mute(0)
-	%Mute.toggled.connect(func(value: bool): AudioServer.set_bus_mute(0, value))
-	# The game library can open a specific game directly.
-	if get_tree().has_meta("start_mode"):
-		mode = clampi(int(get_tree().get_meta("start_mode")), 0, 1)
-		get_tree().remove_meta("start_mode")
 	prepare()
 
 func clear_actors() -> void:
@@ -71,13 +68,10 @@ func clear_actors() -> void:
 
 func prepare() -> void:
 	level = clampi(level, 0, 2)
-	%LevelSelect.select(level)
 	completed_level = false
 	enemy_serial = 0
-	%Mode.select(mode)
 	state = "ready"
 	clear_actors()
-	%Overlay.hide()
 	clear_effects()
 	win_delay = 0.0
 	defeat_delay = 0.0
@@ -93,7 +87,7 @@ func prepare() -> void:
 	hearts = 3
 	collected = 0
 	elapsed = 0
-	remaining = [75.0, 70.0, 65.0][level] if mode == 0 else [60.0, 75.0, 90.0][level]
+	remaining = [75.0, 70.0, 65.0][level]
 	invincible = 0
 	cooldown = 0
 	pulse_time = 0
@@ -104,16 +98,12 @@ func prepare() -> void:
 	player.set_protected(false)
 	%PulseRing.hide()
 	reset_input()
-	%Title.text = "Seed Quest" if mode == 0 else "Sentinel Dash"
-	%Instructions.text = ("Collect %d seeds in %ds." % [seed_goal(), int(remaining)] if mode == 0 else "Survive %ds." % int(remaining))
 	set_animation_active(false)
 	update_hud()
 
 func start_session() -> void:
 	prepare()
 	%NightThemes.begin_session()
-	if auto_fullscreen and DisplayServer.get_name() != "headless" and get_viewport() == get_window():
-		get_window().mode = Window.MODE_FULLSCREEN
 	state = "playing"
 	for index in range(3 + level): spawn_enemy()
 	for index in range(3): spawn_crystal()
@@ -181,11 +171,9 @@ func _process(delta: float) -> void:
 	if state != "playing": return
 	spawn_time -= delta
 	if spawn_time <= 0:
-		spawn_time = (4.0 if mode == 0 else 2.5) - level * 0.55
-		if enemies.size() < (5 if mode == 0 else 7) + level * 2: spawn_enemy()
-	if remaining <= 0:
-		completed_level = mode == 1
-		finish("Adventure complete!" if mode == 1 else "Time’s up — try another adventure")
+		spawn_time = (4.0 if level < 2 else 2.5) - level * 0.55
+		if enemies.size() < (5 if level < 2 else 7) + level * 2: spawn_enemy()
+	if remaining <= 0: finish("Time is up")
 	update_hud()
 
 func ground_point(screen_position: Vector2) -> Variant:
@@ -285,7 +273,7 @@ func check_collisions() -> void:
 			collected += 1
 			add_points(100)
 			%CollectSound.play()
-			if mode == 0 and collected >= seed_goal():
+			if collected >= seed_goal():
 				win_delay = 0.9
 				reset_input()
 				set_animation_active(false)
@@ -382,21 +370,10 @@ func toggle_pause() -> void:
 		state = "paused"
 		reset_input()
 		set_animation_active(false)
-		%ResultTitle.text = "Take a breath"
-		%ResultText.text = "%d points  •  %ds remaining" % [score, ceili(remaining)]
-		%Resume.text = "Resume adventure"
-		%Overlay.show()
-		%Resume.grab_focus()
 	elif state == "paused":
 		state = "playing"
 		set_animation_active(true)
-		%Overlay.hide()
 	update_hud()
-
-func _unhandled_key_input(event: InputEvent) -> void:
-	if event.is_action_pressed("ui_cancel") and state in ["playing", "paused"]:
-		toggle_pause()
-		get_viewport().set_input_as_handled()
 
 func _input(event: InputEvent) -> void:
 	if state != "playing": return
@@ -404,45 +381,29 @@ func _input(event: InputEvent) -> void:
 		send_pulse()
 		get_viewport().set_input_as_handled()
 
-func _notification(what: int) -> void:
-	if what == NOTIFICATION_APPLICATION_FOCUS_OUT and state == "playing": toggle_pause()
-
 func finish(message: String) -> void:
 	if state not in ["playing", "paused"]: return
 	state = "finished"
 	reset_input()
 	set_animation_active(false)
-	var key := "%d_%d" % [mode, level]
+	var key := "0_%d" % level
 	best[key] = maxi(score, int(best.get(key, 0)))
-	best[str(mode)] = maxi(score, int(best.get(str(mode), 0)))
 	var config := ConfigFile.new()
 	config.set_value("progress", "best", best)
-	var saved := config.save("user://adventure_progress.cfg") == OK
-	%ResultTitle.text = message
-	%ResultText.text = "Level %d  •  %d points  •  %d seeds\nPersonal best: %d\n\n%s" % [level + 1, score, collected, best[key], "Your best score is saved." if saved else "Progress could not be saved on this device."]
-	%Resume.text = "Play again"
-	%Overlay.show()
-	%Resume.grab_focus()
+	config.save("user://adventure_progress.cfg")
+	var stars := 0
+	if completed_level: stars = 3 if hearts == 3 else (2 if hearts == 2 else 1)
+	shell.finish(stars, message, "%d seeds  •  %d points  •  best %d" % [collected, score, best[key]])
 	update_hud()
 
 func update_hud() -> void:
-	%PauseBriefing.visible = state == "paused"
-	%ResultText.visible = state != "paused"
 	update_nova_pulse()
 	%DamageCue.visible = hit_time > 0
 	%NovaPulse.get_node("Status").visible = hit_time <= 0
 	%NovaPulse.get_node("Charge").visible = hit_time <= 0
-	%NextLevel.visible = state == "finished" and completed_level and level < 2
-	%LevelSelect.disabled = state in ["playing", "paused"]
-	%LevelHUD.text = "LEVEL %d" % (level + 1)
-	%Setup.visible = state == "ready"
 	%HUD.visible = state == "playing"
 	%Score.text = "%04d" % score
-	%Time.text = "%ds" % ceili(remaining)
-	%Mode.disabled = state in ["playing", "paused"]
-	%Start.disabled = state in ["playing", "paused"]
-	%Pause.disabled = state != "playing"
-	%Stop.disabled = state != "playing"
+	if shell: shell.set_status("Seeds %d of %d   •   %ds" % [collected, seed_goal(), ceili(remaining)])
 	%Pulse.disabled = state != "playing" or cooldown > 0 or win_delay > 0 or defeat_delay > 0
 	%PulseCharge.value = (1.0 - cooldown / 3.0) * 100.0
 

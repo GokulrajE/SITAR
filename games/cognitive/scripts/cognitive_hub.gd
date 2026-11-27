@@ -1,10 +1,17 @@
 extends Control
-## Memory Meadow, Melody Steps and Focus Finder in 2D.
+## Shared engine of Memory Meadow, Melody Steps and Focus Finder in 2D.
+## Each game has its own scene (memory_meadow, melody_steps, focus_finder.tscn)
+## that sets `game`. Menus, pause and results come from the shared game shell.
 ## All delayed gameplay advances through _process, so pause freezes every phase.
 const Art = preload("res://games/cognitive/scripts/cognitive_art.gd")
 const Tile = preload("res://games/cognitive/scripts/cognitive_tile_2d.gd")
 const TouchButtons = preload("res://scripts/shared/touch_buttons.gd")
 const Fx = preload("res://games/cognitive/scripts/cognitive_fx.gd")
+const Shell = preload("res://scripts/shared/game_shell.gd")
+const LEVEL_NOTES := [["4 pairs, no clock", "6 pairs, 3 minutes", "8 pairs, 2 minutes"],
+	["4 notes, slow", "6 notes", "8 notes, fast"],
+	["5 objects", "8 objects", "12 look-alikes"]]
+const ACCENTS := [Color("4f8a3c"), Color("2f7fa8"), Color("b8732a")]
 const NAMES = ["Memory Meadow", "Melody Steps", "Focus Finder"]
 
 ## The board lies to the right of the host.
@@ -24,7 +31,9 @@ const ICON := {home = 0, pause = 1, sound = 4, muted = 5, clock = 6, star = 7, n
 
 static var _notes: Array[AudioStreamWAV] = []
 
-@export var auto_fullscreen := true
+## The one game this scene plays: 0 Memory Meadow, 1 Melody Steps, 2 Focus Finder.
+@export_range(0, 2) var game := 0
+var shell: Control
 ## Tests switch this off, so that they never touch the saved best scores.
 @export var persist := true
 var mode := 0
@@ -62,15 +71,8 @@ var _note_players: Array[AudioStreamPlayer] = []
 @onready var ambient: Node2D = %Ambient
 @onready var fx: Node2D = %Fx
 @onready var target_tile: Node2D = %TargetIcon
-@onready var stats: Label = %Stats
 @onready var status_label: Label = %Status
 @onready var progress: ProgressBar = %Progress
-@onready var overlay: Control = %Overlay
-@onready var overlay_title: Label = %OverlayTitle
-@onready var overlay_text: Label = %OverlayText
-@onready var overlay_action: Button = %OverlayAction
-@onready var card_buttons: Array = [%MemoryCard, %MelodyCard, %FocusCard]
-@onready var level_buttons: Array = [%Level1, %Level2, %Level3]
 
 
 func focus_goal() -> int:
@@ -90,42 +92,23 @@ func _ready() -> void:
 	if config.load("user://cognitive_progress.cfg") == OK:
 		best = config.get_value("progress", "best", {})
 	_make_note_players()
-	_set_icons()
-	for index in 3:
-		card_buttons[index].pressed.connect(func(): choose_game(index))
-		level_buttons[index].pressed.connect(func(): choose_level(index))
-	%Start.pressed.connect(start_session)
-	%Pause.pressed.connect(toggle_pause)
-	%Leave.pressed.connect(toggle_pause)
-	%Stop.pressed.connect(func(): finish(false))
-	%NextLevel.pressed.connect(func():
-		difficulty = mini(2, difficulty + 1)
+	mode = game
+	# The shell's status pill shows the task; the old label only holds the text.
+	status_label.get_parent().hide()
+	shell = Shell.new()
+	shell.title = NAMES[mode]
+	shell.levels = ["Discover", "Develop", "Challenge"]
+	shell.notes = LEVEL_NOTES[mode]
+	shell.accent = ACCENTS[mode]
+	shell.dim = 0.3
+	add_child(shell)
+	shell.start_pressed.connect(func(level: int):
+		difficulty = level
 		start_session())
-	%Motion.toggled.connect(func(value: bool):
-		reduced_motion = value
-		%Motion.text = "Motion: calm" if value else "Motion: full")
-	for button in [%Mute, %Sound]:
-		button.button_pressed = AudioServer.is_bus_mute(0)
-		button.toggled.connect(_set_mute)
-	_show_mute()
-	# The 3D quality choice has no effect here.
-	%Display.get_node("Quality").hide()
-	var fullscreen: Button = %Display.get_node("Fullscreen")
-	fullscreen.custom_minimum_size = Vector2(318, 90)
-	fullscreen.theme_type_variation = &"BlueButton"
-	fullscreen.add_theme_font_size_override("font_size", 25)
-	%Home.pressed.connect(func(): get_tree().change_scene_to_file("res://scenes/ui/launcher.tscn"))
-	%Resources.pressed.connect(func(): OS.shell_open("https://www.nia.nih.gov/health/brain-health/cognitive-health-and-older-adults"))
-	overlay_action.pressed.connect(func():
-		if state == "paused": toggle_pause()
-		else: start_session())
-	%Back.pressed.connect(func():
-		if state == "paused": finish(false)
+	shell.pause_changed.connect(func(_paused: bool): toggle_pause())
+	shell.stop_pressed.connect(func():
+		if state in ["playing", "paused"]: finish(false, true)
 		prepare())
-	# The game library can open a specific game directly.
-	if get_tree().has_meta("start_mode"):
-		mode = clampi(int(get_tree().get_meta("start_mode")), 0, 2)
-		get_tree().remove_meta("start_mode")
 	prepare()
 
 
@@ -133,43 +116,10 @@ func _exit_tree() -> void:
 	Art.release_all()
 
 
-func _set_icons() -> void:
-	%Home.icon = Art.ui_icon(ICON.home)
-	%Leave.icon = Art.ui_icon(ICON.home)
-	%Pause.icon = Art.ui_icon(ICON.pause)
-	%ScoreIcon.texture = Art.ui_icon(ICON.star)
-	%ClockIcon.texture = Art.ui_icon(ICON.clock)
-
-
-func _set_mute(value: bool) -> void:
-	AudioServer.set_bus_mute(0, value)
-	_show_mute()
-
-
-func _show_mute() -> void:
-	var muted := AudioServer.is_bus_mute(0)
-	for button in [%Mute, %Sound]:
-		button.set_pressed_no_signal(muted)
-		button.icon = Art.ui_icon(ICON.muted if muted else ICON.sound)
-
-
-func choose_game(index: int) -> void:
-	if state in ["playing", "paused"]: return
-	mode = index
-	prepare()
-
-
-func choose_level(index: int) -> void:
-	if state in ["playing", "paused"]: return
-	difficulty = index
-	prepare()
-
-
 func prepare() -> void:
 	difficulty = clampi(difficulty, 0, 2)
 	completed_level = false
 	state = "ready"
-	overlay.hide()
 	score = 0
 	attempts = 0
 	correct = 0
@@ -181,24 +131,12 @@ func prepare() -> void:
 	phase = ""
 	target = -1
 	fx.clear()
-	for index in 3:
-		card_buttons[index].choose(index == mode)
-		level_buttons[index].theme_type_variation = &"OrangeButton" if index == difficulty else &"BlueButton"
-	%LevelDetails.text = _level_details()
 	status_label.text = ""
 	%Background.texture = Art.texture("%s/%s_1" % [Art.GAMES[mode].dir, Art.GAMES[mode].bg])
 	# The sheets of this game load while the player reads the menu.
 	Art.keep_only(Art.menu_sheets() + Art.game_sheets(mode, difficulty))
 	make_board()
 	update_hud()
-
-
-func _level_details() -> String:
-	match mode:
-		0: return ["4 pairs  •  no time limit  •  long look", "6 pairs  •  180 seconds  •  shorter look", "8 pairs  •  120 seconds  •  brief look"][difficulty]
-		1: return ["4-step melody  •  slow", "6-step melody  •  medium", "8-step melody  •  fast"][difficulty]
-	return "%d objects to find  •  %d choices  •  %d seconds%s" % [focus_goal(), [6, 9, 12][difficulty],
-		int(remaining), "  •  mistakes cost 3 s" if difficulty == 2 else ""]
 
 
 func make_board() -> void:
@@ -301,14 +239,12 @@ func _unhandled_input(event: InputEvent) -> void:
 func start_session() -> void:
 	prepare()
 	state = "playing"
-	if auto_fullscreen and DisplayServer.get_name() != "headless" and get_viewport() == get_window():
-		get_window().mode = Window.MODE_FULLSCREEN
 	%ClickSound.play()
-	var game: Dictionary = Art.GAMES[mode]
-	%Background.texture = Art.texture("%s/%s_%d" % [game.dir, game.bg, difficulty + 1])
-	for item in [host, ambient, fx, %ResultHost]: item.reduced_motion = reduced_motion
+	var info: Dictionary = Art.GAMES[mode]
+	%Background.texture = Art.texture("%s/%s_%d" % [info.dir, info.bg, difficulty + 1])
+	for item in [host, ambient, fx]: item.reduced_motion = reduced_motion
 	ambient.setup(mode, difficulty)
-	host.setup(game, HOST_SIZE[mode])
+	host.setup(info, HOST_SIZE[mode])
 	host.position = HOST_PLACE[mode]
 	_celebrations = 0
 	if mode == 1:
@@ -325,44 +261,17 @@ func start_session() -> void:
 
 
 func toggle_pause() -> void:
-	if state == "playing":
-		state = "paused"
-		overlay_title.text = "Take a breath"
-		overlay_text.text = "Your game is waiting.\nContinue whenever you feel ready."
-		overlay_action.text = "Continue"
-		%ResultStars.hide()
-		%ResultHost.setup(Art.GAMES[mode], _result_host_size())
-		overlay.show()
-	elif state == "paused":
-		state = "playing"
-		overlay.hide()
+	if state == "playing": state = "paused"
+	elif state == "paused": state = "playing"
 	update_hud()
-
-
-func _result_host_size() -> float:
-	return [660.0, 760.0, 660.0][mode]
-
-
-func _unhandled_key_input(event: InputEvent) -> void:
-	if event.is_action_pressed("ui_cancel") and state in ["playing", "paused"]:
-		toggle_pause()
-		get_viewport().set_input_as_handled()
-
-
-func _notification(what: int) -> void:
-	if what == NOTIFICATION_APPLICATION_FOCUS_OUT and state == "playing": toggle_pause()
 
 
 func _process(delta: float) -> void:
 	_touch_clock += delta
 	Art.poll()
-	if state == "ready":
-		for card in card_buttons:
-			card.host.reduced_motion = reduced_motion
-			card.advance(delta)
-		return
+	if state == "ready": return
 	if state == "finished":
-		%ResultHost.advance(delta)
+		host.advance(delta)
 		fx.advance(delta)
 		return
 	if state != "playing": return
@@ -576,65 +485,44 @@ func stars() -> int:
 
 
 func update_hud() -> void:
-	%NextLevel.visible = state == "finished" and completed_level and difficulty < 2
-	%Stop.visible = state == "paused"
-	overlay_action.position.y = 700.0 if %NextLevel.visible else 596.0
-	overlay_action.theme_type_variation = &"OrangeButton" if %NextLevel.visible else &""
-	%LevelHUD.text = "Level %d of 3" % (difficulty + 1)
-	stats.text = str(score)
-	%Clock.text = "%d s" % (ceili(remaining) if is_timed() else int(elapsed))
-	%Setup.visible = state == "ready"
-	%HUD.visible = state != "ready"
+	if shell and state in ["playing", "paused"]:
+		var parts := [status_label.text if status_label.text != "" else NAMES[mode]]
+		if is_timed(): parts.append("%d s" % ceili(remaining))
+		parts.append("%d points" % score)
+		shell.set_status("   •   ".join(parts))
+	%HUD.visible = state in ["playing", "paused"]
 	for item in [board, ambient]: item.visible = state != "ready"
-	# The panel shows its own host.
-	host.visible = state == "playing"
+	host.visible = state != "ready"
 	target_tile.visible = mode == 2 and state != "ready"
 	%Steps.visible = mode == 1 and state != "ready"
 	if mode == 1:
 		var watching := phase in ["flash", "unflash"]
 		%Steps.show_steps(sequence.size(), playback + int(phase == "unflash") if watching else sequence_index)
-	%PhaseIcon.texture = _phase_icon()
 	match mode:
 		0: progress.value = 100.0 * matched.size() / maxi(1, cards.size())
 		1: progress.value = 100.0 if completed_level else 100.0 * (stage - 1) / melody_goal()
 		2: progress.value = 100.0 * correct / focus_goal()
-	%Pause.disabled = state != "playing"
-	%Leave.disabled = state != "playing"
 	for index in buttons.size():
 		buttons[index].disabled = state != "playing" or phase != "" or index in matched
 
 
-var _phase_icons := {}
-func _phase_icon() -> Texture2D:
-	var index: int = ICON.look if phase in ["flash", "unflash", "next_sequence", "repeat_sequence", "hide_cards"] else ICON.hand
-	if index not in _phase_icons: _phase_icons[index] = Art.ui_icon(index)
-	return _phase_icons[index]
-
-
-func finish(completed: bool) -> void:
+func finish(completed: bool, quiet := false) -> void:
 	if state not in ["playing", "paused"]: return
 	state = "finished"
 	completed_level = completed
 	phase = ""
 	var key := "%d_%d" % [mode, difficulty]
 	best[key] = maxi(score, int(best.get(key, 0)))
-	var saved := _save_best()
-	overlay_title.text = "Level %d complete!" % (difficulty + 1) if completed else ("Time is up" if is_timed() and remaining <= 0 else "Well practised")
-	overlay_text.text = "%d points  •  %d seconds\n%d right in %d tries\n%s" % [score, int(elapsed), correct, attempts,
-		"Best score: %d" % best[key] if saved else "Your score could not be saved on this device."]
-	overlay_action.text = "Play again"
-	var earned := stars()
-	%ResultStars.visible = completed
-	for index in 3:
-		%ResultStars.get_child(index).texture = Art.ui_icon(ICON.star if index < earned else ICON.no_star)
-	%ResultHost.setup(Art.GAMES[mode], _result_host_size())
+	_save_best()
+	update_hud()
+	if quiet: return
 	if completed:
-		%ResultHost.loop("cheer")
+		host.loop("cheer")
 		fx.confetti()
 	else:
-		%ResultHost.rest_with("encourage", 4.0)
-	overlay.show()
-	update_hud()
+		host.rest_with("encourage", 4.0)
+	var headline := "Level %d complete!" % (difficulty + 1) if completed else ("Time is up" if is_timed() and remaining <= 0 else "Well practised")
+	shell.finish(stars(), headline, "%d points  •  %d right in %d tries  •  best %d" % [score, correct, attempts, best[key]])
 
 
 func _save_best() -> bool:

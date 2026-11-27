@@ -16,7 +16,6 @@ func capture() -> void:
 	viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
 	root.add_child(viewport)
 	var game = load("res://games/ocean_rescue/scenes/ocean_rescue.tscn").instantiate()
-	game.auto_fullscreen = false
 	viewport.add_child(game)
 	game.set_process(false)
 	await snap("ocean_setup")

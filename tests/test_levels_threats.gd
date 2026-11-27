@@ -2,7 +2,6 @@ extends SceneTree
 func _initialize() -> void:
 	call_deferred("run_tests")
 func quiet(game) -> void:
-	game.auto_fullscreen = false
 	root.add_child(game)
 	game.set_process(false)
 	for sound in game.find_children("*Sound", "AudioStreamPlayer", true, false): sound.stream = null
@@ -12,6 +11,7 @@ func run_tests() -> void:
 	quiet(garden)
 	for level in range(3):
 		garden.mode = 2
+		garden.shell.choose_level(level)
 		garden.difficulty = level
 		garden.start_session()
 		assert(garden.buttons.size() == [6, 9, 12][level])
@@ -19,7 +19,7 @@ func run_tests() -> void:
 			garden.on_tile(garden.cards.find(garden.target))
 			if garden.state == "playing": garden.advance_phase()
 		assert(garden.completed_level and garden.score == garden.focus_goal() * 50)
-		assert(garden.get_node("%NextLevel").visible == (level < 2))
+		assert(garden.shell._next.visible == (level < 2))
 	garden.mode = 0
 	garden.difficulty = 1
 	garden.start_session()
@@ -81,8 +81,8 @@ func run_tests() -> void:
 	game.crystals[0].position = game.player.position
 	game.check_collisions()
 	game._process(1)
-	assert(game.completed_level and game.get_node("%NextLevel").visible)
-	game.get_node("%NextLevel").pressed.emit()
+	assert(game.completed_level and game.shell._next.visible)
+	game.shell._next.pressed.emit()
 	assert(game.level == 1 and game.state == "playing" and game.score == 0)
 	game.queue_free()
 	await process_frame

@@ -29,6 +29,7 @@ const MAX_CONTACTS := 12
 var lib                                  # PegLibrary
 var present: Dictionary = {}             # board -> {"centre", "angle", "legs", "err"}
 var area := Rect2(-1e6, -1e6, 2e6, 2e6)  # contacts outside are ignored
+var ignore: Array[Rect2] = []            # zones inside the area that never count
 
 var _contacts: Dictionary = {}           # touch index -> {"pos", "at", "alone", "from"}
 var _candidates: Dictionary = {}         # board -> {"since", "last"}
@@ -92,7 +93,7 @@ func _input(e: InputEvent) -> void:
 
 func _down(id: int, pos: Vector2) -> void:
 	_contacts.erase(id)
-	if not area.has_point(pos):
+	if not counts(pos):
 		return
 	var k := mm_per_px()
 	var alone := true
@@ -106,6 +107,16 @@ func _down(id: int, pos: Vector2) -> void:
 	if _contacts.size() >= MAX_CONTACTS:
 		_contacts.erase(_contacts.keys()[0])
 	_contacts[id] = {"pos": pos, "from": pos, "at": _t, "alone": alone}
+
+
+## True when a contact at pos is inside the area and not in an ignored zone.
+func counts(pos: Vector2) -> bool:
+	if not area.has_point(pos):
+		return false
+	for r in ignore:
+		if r.has_point(pos):
+			return false
+	return true
 
 
 func _up(id: int) -> void:

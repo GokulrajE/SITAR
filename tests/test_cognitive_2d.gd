@@ -15,7 +15,6 @@ func finish_animations() -> void:
 func run_tests() -> void:
 	game = load("res://games/cognitive/scenes/cognitive_hub.tscn").instantiate()
 	game.persist = false
-	game.auto_fullscreen = false
 	root.add_child(game)
 	game.set_process(false)
 	root.size = Vector2i(1920, 1080)
@@ -43,6 +42,8 @@ func run_tests() -> void:
 	finish_animations()
 
 	# One finger opens one flower, even if the frame reports it twice.
+	# (Sessions here start directly, so the shell is told play has begun.)
+	game.shell._show("playing")
 	game._process(1.0)
 	var tile: Node2D = game.buttons[0]
 	touch(tile.global_position)
@@ -79,10 +80,11 @@ func run_tests() -> void:
 	assert(game.selected.is_empty())
 
 	# Real fingers press the buttons.
-	touch(game.get_node("%Pause").get_global_rect().get_center())
+	game.shell._show("playing")
+	touch(game.shell._pause.get_global_rect().get_center())
 	assert(game.state == "paused")
 	game._process(1.0)
-	touch(game.overlay_action.get_global_rect().get_center())
+	touch(game.shell._pause_box.get_node("Continue").get_global_rect().get_center())
 	assert(game.state == "playing")
 
 	# Melody: the musician glows, the stars count and a double contact is one step.

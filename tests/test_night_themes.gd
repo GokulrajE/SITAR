@@ -9,7 +9,6 @@ func run_tests() -> void:
 	var visited := {}
 	for scene_path in ["res://games/adventure/scenes/adventure.tscn"]:
 		var game = load(scene_path).instantiate()
-		game.auto_fullscreen = false
 		root.add_child(game)
 		game.set_process(false)
 		for sound in game.find_children("*Sound", "AudioStreamPlayer", true, false): sound.stream = null

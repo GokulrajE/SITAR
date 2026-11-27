@@ -1,131 +1,80 @@
-# SITAR Play Studio — 3D edition
+# SITAR Play Studio
 
-Open `project.godot` in Godot 4.6 and press **F5**. The game library has three independent sections, including real-time 3D adventures. The original hand-tracking experiment is preserved under games/hand_tracking/.
+Open `project.godot` in Godot 4.6 and press **F5**. Everything is laid out on a 1920 × 1080 canvas and plays on a TV with an infrared touch frame, a mouse or a touchscreen. The original hand-tracking experiment is preserved under `games/hand_tracking/`.
 
-## Cognitive Garden
+## Game library
 
-Memory Meadow, Melody Steps and Focus Finder play in painted 2D. Each game has its own world for every level and its own animated host: Moti the elephant, Nila the peacock and Tashi the red panda. In Memory Meadow, flowers open to show an object. In Melody Steps, six animals on stones each play their own note. In Focus Finder, the object to find is inside a magnifying glass; level 3 uses look-alikes. Objects come from six picture sets and change every session. The art is in `assets/images/cognitive/` (prompts: `docs/COGNITIVE_2D_ART_PROMPTS.md`).
+The library has two steps. First, six skill rows: Attention, Memory, Perception, Movement, Numbers and Pegboard. A tap shows only that skill's games as moving picture cards. Home from a game returns to the same skill. The gear opens the touch test, full screen and credits.
 
-The rules, three levels, scoring, pause, replay and best scores are unchanged. Two touches within 0.22 seconds and 120 pixels count as one, because one finger can break the infrared beams twice. "Motion: calm" stops movement but keeps all cues. Escape and loss of focus pause the game and every animation. Sheets load in the background while the menu is open, and only the open game stays in memory.
+| Skill | Games |
+| --- | --- |
+| Attention | Focus Finder, Dosa Master |
+| Memory | Memory Meadow, Melody Steps |
+| Perception | Listen & Discover, Connect & Draw |
+| Movement | Ocean Rescue, Seed Quest |
+| Numbers | Quick Sums, Market Basket |
+| Pegboard | Shape Match, Shape Spots, Hand & Shape |
 
-## Updated interface and levels
+Each game opens its own scene. The launcher is `scenes/ui/launcher.tscn` (`scripts/shared/launcher.gd`, rows in `category_tile.gd`, cards in `game_card.gd`, neon theme in `assets/themes/neon_theme.tres`).
 
-The cognitive menu shows three picture cards with the hosts, three level buttons and one Start button. The result page shows up to three stars, which are not saved.
+## The same frame in every game
+
+`scripts/shared/game_shell.gd` gives every game the same controls, so they are learnt once. Each game keeps its own art behind it.
+
+- **Start screen:** the game's name, one card per level with a short note, one big Start button.
+- **While playing:** Home at the top left, Pause and Sound at the top right, and one status pill (for example "Served 3 of 10 • 1:42").
+- **Pause:** Continue or End game. Escape and losing window focus also pause.
+- **Results:** up to three stars, one line of figures, then Next level, Play again or Levels.
+
+Rounds move on by themselves; there are no Next buttons. Short messages ("Not quite. Try again.") fade on their own instead of paragraphs of instructions. A game uses the shell by creating it, setting `title`, `levels`, `notes` and `accent`, and connecting `start_pressed`, `pause_changed` and `stop_pressed`; it calls `finish(stars, headline, line)` at the end.
+
+## Games
 
 | Game | Level 1 | Level 2 | Level 3 |
 | --- | --- | --- | --- |
-| Memory Meadow | 4 pairs, untimed, 1.3s mismatch look | 6 pairs, 180s, 0.9s look | 8 pairs, 120s, 0.6s look (after the flower has opened) |
-| Melody Steps | 4-step goal, 0.85s flashes | 6-step goal, 0.65s flashes | 8-step goal, 0.45s flashes |
-| Focus Finder | 5 matches, 6 choices, 90s | 8 matches, 9 choices, 60s | 12 matches, 12 choices, 45s; errors cost 3s |
-| Seed Quest | 10 seeds, 75s | 14 seeds, 70s | 18 seeds, 65s |
-| Sentinel Dash | Survive 60s | Survive 75s | Survive 90s |
+| Focus Finder | 5 objects, 6 choices, 90 s | 8 objects, 9 choices, 60 s | 12 look-alikes, 45 s; errors cost 3 s |
+| Dosa Master | 6 orders, 2 pans | 10 orders, 4 pans | 14 orders, 6 pans |
+| Memory Meadow | 4 pairs, no clock | 6 pairs, 180 s | 8 pairs, 120 s |
+| Melody Steps | 4 notes, slow | 6 notes | 8 notes, fast |
+| Listen & Discover | 2 pictures, 4 sounds | 3 pictures, 6 sounds | 4 similar sounds, 9 rounds, 3 s clips |
+| Connect & Draw | Connect: tap numbered dots in order | Copy: draw beside the guide | From memory: the guide hides after 4 s |
+| Shape Match | Match | Shape only | Clues, Remember, Sequence (5 levels) |
+| Ocean Rescue | 8 items, 2 buoys, 90 s | 12 items, 4 buoys, 80 s | 16 items, 6 buoys, 70 s |
+| Seed Quest | 10 seeds, 75 s | 14 seeds, 70 s | 18 seeds, 65 s, heavier drone traffic |
+| Quick Sums | Up to 20 | Up to 100, and times | Two steps, like 6 × 4 − 9 |
+| Market Basket | Add two prices | Prices and quantities | Pay with a note, count the change |
+| Shape Spots | 8 spots, one at a time | 10 spots in pairs | 10 spots, each moves on after 8 s |
+| Hand & Shape | 12 bubbles, 2 at a time, slow | 14 bubbles, 3 at a time | 16 bubbles, 4 at a time, faster |
 
-Successful completion offers Next level through level 3. Replay repeats the selected level. All levels are available in setup. Adventure scores are saved per game and level; the HUD shows level and remaining hearts.
+- **Dosa Master:** a ring around each pan fills while the dosa cooks, glows green when it is ready and turns red as it burns. Perfect and slightly late dosas serve a customer; early ones are too soft and do not. The round ends when every order is served or after 2½ minutes.
+- **Memory Meadow, Melody Steps, Focus Finder:** one engine (`games/cognitive/scripts/cognitive_hub.gd`) and three scenes that set `game`. Each has its own painted world and host (Moti, Nila, Tashi). Two touches within 0.22 s and 120 px count as one, because a finger can break the infrared beams twice.
+- **Listen & Discover:** the sound plays by itself; the big speaker replays it. Hard puts similar sounds side by side (guitar and piano, rain and waves).
+- **Connect & Draw:** lines and dots only, from 28 patterns. A copy is checked automatically once enough dots are placed; position and size may differ, shape and order may not. A wrong copy clears itself.
+- **Quick Sums and Market Basket:** ten questions with 3 or 4 large answers; wrong answers fade, and the right one moves on. One script (`games/numbers/scripts/numbers.gd`) with a chalkboard and a market stall.
+- **Pegboard games:** physical boards, each carrying an object, stand on the screen. Nothing about the boards is fixed in the code: **"Record boards"** (on each pegboard game's start screen) records every board fresh. Stand a board in the circle; once its three legs are still, tap the object on it, and that leg pattern is saved for that object. Record again whenever boards or objects change; "Start fresh" forgets all recordings, and tapping a recorded card removes just that one. Up to three boards; a board too similar to one already recorded is refused, because the games could confuse them. There is no rest area: a board can be put down anywhere. Once it has stood still for 1.5 s it is resting and never counts as a wrong answer.
+  - **Shape Match:** left to right, the shape to find, the round detection pad, then Pip. Boards are read only on the pad; the rest of the screen is ignored. Session summaries are saved for the therapist.
+  - **Shape Spots:** a spot with an object appears somewhere on the screen and waits; stand that board on it. A wrong board counts once. After 10 s the spot shows the object's name. New spots appear away from boards that are standing on the screen.
+  - **Hand & Shape:** bubbles drift under water. Tap hand bubbles with a finger; catch object bubbles by standing that board on them (a board can also wait for a bubble to drift under it). Bubbles bounce off resting boards that do not match them.
+- **Ocean Rescue and Seed Quest:** real-time 3D. Tap or drag to steer. In Seed Quest, double-tap or Pulse clears nearby drones.
 
-Adventure levels start with 3 / 4 / 5 enemies, increasing speed, spawn frequency and population caps. Chargers show an orange lane, lock their direction, dash, then recover. Interceptors aim ahead of Nova; flankers approach from changing angles. The dash warning lasts 0.95 / 0.8 / 0.65 seconds. Swept collision detects fast attacks crossing Nova.
+## Saved data
 
-Pulse activation uses two staggered cyan shockwaves and six outward sparks, retaining the three-unit hit radius and three-second cooldown. Activation clears the gold ready effect to keep the cues distinct. Warnings, movement, timers and transient animations freeze during pause.
-
-Verification: tests/test_levels_threats.gd covers new level goals, penalties, timeouts, next-level transitions, warnings, dashes, damage and pulse cancellation. tests/capture_refresh.gd renders the refreshed setup, eight icons, charge warning and pulse at 4K.
-
-## Little Adventures — 3D
-
-The adventure section uses three night environments. **Starlight Courtyard (option B)** opens the first session after launching the app. Each subsequent Start or Play again randomly selects one of the other two themes: **Moonlit Robo Garden** or **Lunar Greenhouse**, or returns to Starlight on later sessions. The immediately previous theme never repeats, including when switching between sections. Pausing, resuming and changing difficulty before starting do not change the active theme.
-
-The backgrounds are editable 3D scenes inspired by the approved concepts. They retain an open center, peripheral landmarks and visible floor boundaries. Cyan robot lighting, coral enemy lighting and gold seed rewards stay consistent in every world. Emissive materials, soft radial ground glows and local lights work with the existing Compatibility renderer; no renderer switch or bloom dependency is required. Nature models remain bundled locally from [Kenney Nature Kit](https://kenney.nl/assets/nature-kit).
-
-Play as **Nova**, an original 3D explorer robot, on a continuous floor that fills the display, with hovering drones, glowing golden seeds, shadows and character animations. The playable area is about 59% larger than the previous arena, with clearance for the HUD. The models are actual meshes.
-
-- **Seed Quest:** collect the selected level’s seed goal within its time limit while avoiding pursuing creatures.
-- **Sentinel Dash:** survive for the selected level’s duration; collect seeds and repel enemies for points. Enemies spawn more frequently than in Seed Quest.
-- **Left-click or tap the arena** to move Nova to a destination, or **drag** to steer continuously. A ring marks the destination. Nova stops on arrival. **Double-click / double-tap the arena**, or click **Pulse**, to repel nearby enemies; recharge takes three seconds. Right-click no longer triggers pulse. Pause, stop and replay clear the destination; clicks on UI controls do not issue movement commands.
-- Seeds give 100 points, repelled enemies give 50 points. Three hearts, with 1.8 seconds of protection after taking damage.
-- Start, Pause, Resume, Stop, Play again and navigation back to the library are supported. Pause freezes gameplay, enemy movement, animations and timers. Switching away from the window pauses automatically.
-- Mute works across both sections for the current app session. Best scores are stored separately for both adventure modes.
-
-## Uncluttered fullscreen play
-
-Starting either section enters native fullscreen on desktop. F11 can return to a window. The adventure play view shows score, time, level, hearts and Pause, Stop, Mute and Pulse controls. Mode selection, instructions, graphics settings and navigation appear before the session; pause/results controls appear when needed. The adventure floor extends to every edge of the 16:9 play view.
-
-Seed pickups award 100 points immediately, with a rising gold effect, warm burst, floating +100 and animated score. Pulse readiness uses a distinct gold halo/spark effect, a glowing Pulse button and a one-time chime. The thin bar inside Pulse shows cooldown progress. Effects use scene-authored animation tracks advanced by gameplay time, so pause freezes them. The tenth pickup has a short celebration before the results appear.
-
-Effect assets: `games/adventure/scenes/3d/collect_effect.tscn` and `games/adventure/scenes/3d/ready_effect.tscn`. Their animation and geometry are editable directly in Godot. UI animation tracks remain in `games/adventure/scenes/adventure.tscn`; `scripts/shared/game_effect.gd` only handles animation playback and cleanup.
+Best scores only: `user://cognitive_progress.cfg`, `adventure_progress.cfg`, `ocean_progress.cfg`, `sensory_progress.cfg`, `numbers_progress.cfg`, `peg_targets_progress.cfg`, plus the pegboard setup and session log. No personal or medical data is collected. Scores measure game performance, not clinical improvement; these games are practice activities, not validated medical treatments.
 
 ## Project folders
 
-All UI, geometry and animation tracks are scene-authored. Scripts contain gameplay and presentation logic.
-
-- games/adventure/scenes and scripts: Nova adventures, actors, effects and HUD.
-- games/cognitive/scenes and scripts: memory, melody and focus games in 2D (`scenes/3d` holds the earlier, unused 3D pieces).
-- games/hand_tracking/scenes and scripts: preserved original hand-tracking experiment.
-- scenes/ui: launcher and shared display controls. The launcher has one moving picture card per game in four skill columns (`scripts/shared/game_card.gd`); the gear opens touch test, full screen and credits. Its small pictures come from `tools/build_launcher_art.py`.
-- scenes/environments: the three night worlds and theme host.
-- scripts/shared: reusable actors, effects, theme selection and navigation.
-- assets/models/nature, audio, fonts, images, shaders and themes: runtime resources and licenses.
-- tests: gameplay regression checks and 4K capture scripts.
-- docs/ASSET_CREDITS.md: asset sources and license information.
-
-Open project.godot and press F5. Local test output belongs in .test-data (ignored by Godot and Git).
-The local .cleanup-backup/unused-files-2026-10-13.zip contains removed files and a migration manifest for recovery; it is excluded from imports and Git. Saved progress was preserved.
-
-## 4K display and graphics
-
-Use **Fullscreen / F11** on a display configured to **3840 × 2160** in the operating system. Fullscreen uses the display's current resolution, so a 1080p monitor remains 1080p. The UI scales to 2× at 4K and text is rasterized at the display resolution. Non-16:9 windows preserve the UI aspect ratio with letterboxing.
-
-- **Performance:** native-resolution 3D with anti-aliasing off.
-- **Balanced:** native-resolution 3D with 2× MSAA (default).
-- **Ultra:** native-resolution 3D with 4× MSAA.
-
-Graphics controls appear before starting an adventure, (quality) and in the cognitive section and launcher (full screen). F11 returns to windowed mode. Presets change anti-aliasing, not rendering resolution. 4K frame rate depends on the GPU; the successful native 4K render check is not a sustained-frame-rate benchmark.
-
-
-## Assets and data
-
-Original 3D models are created for this project. Kenney Nature Kit and Interface Sounds remain bundled under CC0 with their license files. Unused 2D prototypes, sprite packs and duplicate model exports were removed. Nunito is bundled under SIL OFL; its semibold file is a static instance of the downloaded variable font. See `docs/ASSET_CREDITS.md` for exact source URLs and usage.
-
-Gameplay works offline. The optional Brain health resources link opens the NIH/NIA website. Scores measure game performance, not clinical improvement; these games are not validated medical treatments.
-
-Best scores live in `user://cognitive_progress.cfg` and `user://adventure_progress.cfg`. No personal or medical data is collected by the new sections. The existing experiment retains its existing behavior and external dependencies; `games/hand_tracking/scenes/main.tscn`, `games/hand_tracking/scenes/sitar_game.tscn`, `games/hand_tracking/scripts/refferance.gd`, and `Player/` are preserved. Its original fixed 1920 × 1080 experiment coordinates still require a matching viewport when run separately.
+- `games/<game>/scenes` and `scripts`: one folder per game.
+- `scenes/ui`, `scripts/shared`: launcher, game shell, touch helpers, shared effects.
+- `scenes/environments`: the three night worlds of Seed Quest.
+- `assets`: models, audio, fonts, images, shaders and themes. Sources and licenses: `docs/ASSET_CREDITS.md`, sounds: `docs/SENSORY_GAMES.md`.
+- `tests`: regression checks (`test_*.gd`, run headless) and capture scripts (`capture_*.gd`, need a graphics-capable Godot).
 
 ## Verification
 
-Run each with your Godot executable:
-
 ```
---headless --path D:/sitar --script tests/test_cognitive_hub.gd
---headless --path D:/sitar --script tests/test_adventure.gd
---headless --path D:/sitar --script tests/test_navigation.gd
---headless --path D:/sitar --script tests/test_3d.gd
---headless --path D:/sitar --script tests/test_mouse_movement.gd
---headless --path D:/sitar --script tests/test_effects.gd
---headless --path D:/sitar --script tests/test_cognitive_2d.gd
---path D:/sitar --script tests/capture_4k.gd
---path D:/sitar --script tests/capture_cognitive_4k.gd
---headless --path D:/sitar --script tests/test_night_themes.gd
---path D:/sitar --script tests/capture_night_themes.gd
+Godot --headless --path D:/sitar --script tests/test_navigation.gd
+Godot --headless --path D:/sitar --script tests/test_sensory.gd
+Godot --path D:/sitar --script tests/capture_games.gd -- quick_sums dosa
 ```
 
-Tests cover previous cognitive rules, scene controls, adventure movement/collisions, scoring, invincibility, pulse cooldown, frozen pause state, completion/defeat/timeouts, replay, navigation, focus pause and persistence. Headless tests check that audio streams exist but disable mixing to avoid same-frame audio teardown warnings. Rendered Godot screenshots were inspected for the 3D library, cognitive board and adventure view. The 4K capture test uses a real 3840 × 2160 offscreen render with 4× MSAA, asserts camera clearance at both playable depth boundaries, and saves `.test-data/adventure_4k.png`. It requires a graphics-capable Godot process (do not run it headlessly). The 3D test checks mesh assets, animation states, X/Z movement limits, shielding and graphics presets. Physical touchscreen behavior and subjective sound balance still require device testing.
-
-
-Adventure guidance: orange chevrons preview a drone's charge direction; only drone contact costs a heart. Double-click or double-tap clears drones within three world units (+50 each). Nova's overhead bar refills over three seconds with a countdown, then a breathing PULSE READY cue and sound. Recharge freezes on pause. The start and pause briefings explain Nova's mission, faulty security drones, movement and pulse controls. Presentation is authored in adventure_briefing.tscn, nova_pulse.tscn and enemy.tscn.
-
-Drone-hit feedback: Nova tilts with a brief coral glow; an overhead broken heart and -1 show a life lost. Three persistent HUD heart outlines remain visible while the lost fill enlarges and fades. A cyan shield marks 1.8 seconds of contact immunity. Effects freeze on pause and reset on replay; the final hit has a one-second animation before results. UI and animation tracks are scene-authored.
-
-## Ocean Rescue
-
-Select Ocean Rescue / Set sail in the library. Click, drag or touch the water to steer; collect floating bottles and containers for 100 points each. Pickups arc into the boat basket, with scoop motion, splash, score pop and a brief +100. Orange navigation buoys block movement; choose a route around them. There is no combat or wildlife collection.
-
-Levels: Calm Lagoon collects 8 items in 90 seconds with 2 buoys; Island Trail collects 12 in 80 seconds with 4 buoys; Reef Ranger collects 16 in 70 seconds with 6 buoys. Start, pause/resume, stop, replay, next level, mute and best scores per level are supported. Focus loss pauses. Dolphins jump at milestones and periodically; rigged swimming, wave motion, shoreline foam, boat rocking and pickup effects all freeze during pause.
-
-The boat and buoys use Kenney Watercraft Kit models; palms, bushes and rocks use Kenney Nature Kit. The dolphin uses Quaternius's skinned, animated Fish Pack FBX. A scene material gives the boat the selected coral/yellow palette. Wave and splash recordings come from OpenGameArt. Models and audio are bundled locally for offline play; exact sources and licenses are in docs/ASSET_CREDITS.md.
-
-Scene: games/ocean_rescue/scenes/ocean_rescue.tscn. Logic: games/ocean_rescue/scripts/ocean_rescue.gd. Reusable models and animation tracks are in the game's scenes/3d folder. Imported models are in assets/models/ocean, sounds in assets/audio/ocean, and ocean shaders in assets/shaders. UI lives in scenes, with its theme in assets/themes/ocean_theme.tres.
-
-Rendering uses the native viewport. On a 3840×2160 display select Fullscreen / F11 and Ultra for 4× MSAA. tests/capture_ocean.gd verifies native 4K setup, play and collection frames. This verifies rendering/layout, not sustained 4K frame rate on every GPU. tests/test_ocean_rescue.gd checks progression, collection, animation pause, obstacles, replay and persistence.
-
-## Picture and sound games
-
-Two separate library entries: **Connect the picture** offers 28 distinct layouts, eight rounds per session, a saved no-repeat shuffle bag, and sequential or simultaneous touch. **Listen & discover** offers nine recordings and Easy / Medium / Hard levels with 2 / 3 / 4 choices, 4 / 6 / 9 rounds, and shorter clips with similar alternatives on Hard. Completed levels offer Next level. Untimed play, replay, volume, optional gentle animation and independent best scores remain. See [controls and audio licenses](docs/SENSORY_GAMES.md).
-
-Pattern drawing also includes **Copy on blank canvas**: reproduce the visible reference by placing your own dots, then check the shape. Undo and clear are available; matching allows different positions and sizes.
+`test_navigation.gd` opens all fourteen games from the library and checks the shell in each. `test_sensory.gd` plays Listen & Discover, Connect & Draw, both calculation games and Dosa Master through the shell. The other `test_*.gd` files cover the cognitive games, Seed Quest, Ocean Rescue and the pegboard games (`test_peg_match.gd`, `test_peg_targets.gd`, driven by simulated board contacts). `capture_games.gd` saves start and play screenshots to `user://shots/`. Physical IR-frame behaviour and sound balance still need testing on the TV.

@@ -57,7 +57,3 @@ A small subset of Kenney Tiny Dungeon tiles remains for prototype scenes re-save
 ## Sensory games
 
 Original generated nine-cell 2D atlas, vector pattern references, and nine CC0 / CC BY sound recordings: see [full sources, licenses, modifications and art prompt](SENSORY_GAMES.md).
-
-## Butterfly Garden
-
-Garden background, butterfly wing-animation sheet, and flower/pollen sheet in assets/images/butterfly_garden were generated with OpenAI's built-in image-generation tool. See docs/BUTTERFLY_GARDEN.md for exact prompts and atlas details. Confirmation audio reuses the existing project asset.

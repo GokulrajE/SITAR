@@ -25,7 +25,6 @@ func capture() -> void:
 	game = load("res://games/cognitive/scenes/cognitive_hub.tscn").instantiate()
 	viewport.add_child(game)
 	game.set_process(false)
-	game.auto_fullscreen = false
 	game.persist = false
 	for mode in range(3):
 		game.finish(false)

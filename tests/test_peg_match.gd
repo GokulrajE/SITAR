@@ -10,6 +10,12 @@ const REAL := {
 	"B": [Vector2(981, 302), Vector2(1098, 296), Vector2(1058, 376)],
 	"C": [Vector2(1046, 754), Vector2(985, 855), Vector2(983, 765)],
 }
+## Example boards for the simulation only (the real games record them).
+const BOARDS := {
+	"A": [Vector2(-18.5, -19.5), Vector2(-2.5, 22.5), Vector2(15.0, -2.5)],
+	"B": [Vector2(22.5, 20.0), Vector2(-30.0, -3.0), Vector2(16.5, -22.5)],
+	"C": [Vector2(4.0, -30.0), Vector2(-14.5, 10.0), Vector2(13.5, 25.5)],
+}
 var ids := 100
 var down: Dictionary = {}
 var shots := ""
@@ -26,7 +32,7 @@ func check(ok: bool, what: String) -> void:
 func legs(board: String, centre: Vector2, deg: float, noise := 0.0) -> Array:
 	var out := []
 	var k := 1920.0 / Library.DEFAULT_WIDTH_MM
-	for p: Vector2 in Library.DESIGN[board]:
+	for p: Vector2 in BOARDS[board]:
 		out.append(centre + (Vector2(p.x, -p.y) * k).rotated(deg_to_rad(deg)) + Vector2(randf_range(-noise, noise), randf_range(-noise, noise)) * k)
 	return out
 
@@ -78,12 +84,26 @@ func run() -> void:
 	if failed:
 		quit(1)
 		return
-	print("PASS: recognition, calibration, set-up, all five levels, flicker, early/wrong/resting boards, hints, results")
+	print("PASS: recorded recognition, recording rules, recording set-up, all five levels, flicker, early/wrong/resting boards, hints, results")
 	quit()
+
+## Records example board legs for objects, in slot order A, B, C, as set-up would.
+func record_boards(lib, objects: Array) -> void:
+	lib.clear()
+	for i in objects.size():
+		var pts: Array[Vector2] = []
+		pts.assign(legs(["A", "B", "C"][i], Vector2(900, 500), 0.0))
+		var r: Dictionary = lib.record(objects[i], pts, Library.DEFAULT_WIDTH_MM / 1920.0)
+		check(r.get("slot", "") == ["A", "B", "C"][i], "recorded %s: %s" % [objects[i], r])
 
 func test_recognition() -> void:
 	var lib := Library.new()
 	var k := Library.DEFAULT_WIDTH_MM / 1920.0
+	check(lib.objects().is_empty(), "nothing is known before recording")
+	var nothing: Array[Vector2] = []
+	nothing.assign(REAL["A"])
+	check(lib.identify(nothing, k).is_empty(), "no fixed board patterns")
+	record_boards(lib, ["cup", "cone", "square"])
 	for b in REAL:
 		var p: Array[Vector2] = []
 		p.assign(REAL[b])
@@ -107,47 +127,80 @@ func test_recognition() -> void:
 			wrong += 1
 	print("3000 random placements, +-1.5 mm noise per leg: wrong ", wrong, ", unread ", missed)
 	check(wrong == 0 and missed < 30, "noise robustness")
-	var nine: Array[Vector2] = []
-	for b in REAL:
-		nine.append_array(REAL[b])
-	nine.shuffle()
-	lib.width_mm = 534
-	var m: Dictionary = lib.measure_screen(nine, 1920.0)
-	print("screen width from the real contacts: ", m)
-	check(m.has("width") and absf(m.get("width", 0.0) - 920.0) < 40.0, "screen measurement")
+	# Recording rules.
+	var again: Array[Vector2] = []
+	again.assign(legs("B", Vector2(300, 300), 70.0))
+	check(lib.record("cylinder", again, k).get("slot") == "B" and lib.object_of("B") == "cylinder" and lib.board_of("cone") == "",
+		"the same board recorded with another object replaces it")
+	var close: Array[Vector2] = []
+	close.assign(legs("A", Vector2(300, 300), 0.0))
+	close[0] += Vector2(14, 0)                       # about 7 mm off board A: too similar
+	check(lib.record("cone", close, k).get("error") == "clash", "a too-similar board is refused")
+	var tiny: Array[Vector2] = [Vector2(0, 0), Vector2(10, 0), Vector2(0, 10)]
+	check(lib.record("cone", tiny, k).get("error") == "size", "three fingers close together are not a board")
+	var fourth: Array[Vector2] = [Vector2(500, 500), Vector2(540, 500), Vector2(500, 620)]
+	var full: Dictionary = lib.record("cone", fourth, k)
+	check(full.get("error") == "full", "at most three boards: %s" % full)
+	lib.forget("C")
+	check(lib.record("cone", fourth, k).get("slot") == "C" and lib.objects().size() == 3, "a freed slot is reused")
+	lib.clear()
+	check(lib.objects().is_empty(), "start fresh forgets everything")
+
+func setup_step(s, secs: float) -> void:
+	var t := 0.0
+	while t < secs:
+		s.tracker.update(0.05)
+		s._t += 0.05
+		s.watch(0.05)
+		t += 0.05
 
 func test_setup() -> void:
 	var s = await open("res://games/pegboard/scenes/peg_setup.tscn")
+	s.set_process(false)
 	s.tracker.set_process(false)
+	s.lib.clear()
 	await shot(s, "setup_empty")
-	for pair in [["A", "cup"], ["B", "cone"], ["C", "cup"], ["C", "square"], ["A", "cup"]]:
-		put(s, pair[0], Vector2(760, 590), randf() * 360.0, 0.5)
-		run_for(s, 0.5)
-		check(s.tracker.present.has(pair[0]), "set-up sees board " + pair[0])
+	for pair in [["A", "cup"], ["B", "cone"], ["C", "square"], ["C", "cylinder"]]:
+		put(s, pair[0], s.PAD + Vector2(20, -10), randf() * 360.0, 0.5)
+		setup_step(s, 0.3)
+		check(s.captured.is_empty(), "legs are captured only once they stand still")
+		setup_step(s, 0.6)
+		check(s.captured.size() == 3, "set-up captures the board's three legs")
 		var at: Vector2 = s.icon_pos(Library.OBJECTS.keys().find(pair[1]))
 		s.tracker._down(7, at)
-		run_for(s, 0.2)
+		s.tracker.update(0.05)
 		s.tracker._up(7)
-		check(s.lib.object_of(pair[0]) == pair[1], "caregiver choice is stored")
-		if pair == ["C", "square"]:
+		check(s.lib.object_of(pair[0]) == pair[1], "recorded %s as slot %s: %s" % [pair[1], pair[0], s.lib.assigned])
+		if pair[1] == "square":
 			await shot(s, "setup_ring")
 		lift(s, pair[0])
-		run_for(s, 0.7)
-		check(s.tracker.present.is_empty(), "board is lifted")
-	check(s.lib.assigned == {"A": "cup", "B": "cone", "C": "square"}, "objects move, never duplicate: %s" % s.lib.assigned)
-	put(s, "B", Vector2(90, 1000), 33.0)                 # in a corner
-	run_for(s, 0.5)
-	for i in Library.OBJECTS.size():
-		check(Rect2(0, 110, 1520, 970).has_point(s.icon_pos(i)), "ring stays on screen")
+		setup_step(s, 0.6)
+		check(s.captured.is_empty(), "lifting clears the capture")
+	check(Array(s.lib.objects()) == ["cup", "cone", "cylinder"], "re-recording replaces: %s" % [s.lib.objects()])
+	# A recorded board is recognised again anywhere and in any direction.
+	put(s, "B", Vector2(400, 400), 123.0)
+	setup_step(s, 0.6)
+	check(s.tracker.present.has("B"), "recorded board is recognised")
 	lift(s, "B")
-	run_for(s, 0.7)
+	# Tapping a card removes that recording; Start fresh removes all.
+	var touch := InputEventScreenTouch.new()
+	touch.pressed = true
+	touch.position = s.card_rect(0).get_center()
+	s._input(touch)
+	check(s.lib.object_of("A") == "", "card tap removes a recording")
+	s.start_fresh()
+	check(s.lib.objects().is_empty(), "start fresh")
 
 func test_game() -> void:
 	var g = await open("res://games/pegboard/scenes/peg_match.tscn")
-	check(g._start.disabled, "cannot start without objects")
-	g.lib.assigned = {"A": "cup", "B": "cone", "C": "square"}
+	g.lib.clear()
+	g.start_game()
+	check(g.state == "menu" and g.shell.state == "start", "cannot start without objects")
+	record_boards(g.lib, ["cup", "cone", "square"])
 	g._show_menu()
-	check(not g._start.disabled, "can start with objects")
+	g.start_game()
+	check(g.state != "menu", "can start with objects")
+	g._show_menu()
 	g.set_process(false)
 	g.tracker.set_process(false)
 	await shot(g, "menu")
@@ -161,7 +214,7 @@ func test_game() -> void:
 				check(g.state == "show", "memory picture is shown")
 				if rnd == 0:
 					await shot(g, "l4_show")
-				put(g, "A", Vector2(1540, 560))          # too early: must not count
+				put(g, "A", g.PAD)          # too early: must not count
 				run_for(g, 0.5)
 				check(g.state == "show" and g._errors == 0, "early answer is ignored")
 				lift(g, "A")
@@ -173,7 +226,7 @@ func test_game() -> void:
 				await shot(g, "l%d_wait" % (lv + 1))
 			if rnd == 1:
 				var bad: String = g.lib.objects().filter(func(o): return o != g.expected())[0]
-				put(g, g.lib.board_of(bad), Vector2(1540, 560), 50.0)
+				put(g, g.lib.board_of(bad), g.PAD, 50.0)
 				run_for(g, 0.5)
 				check(g.state == "wrong" and g._errors == 1, "wrong board is noticed")
 				if lv == 0:
@@ -189,7 +242,7 @@ func test_game() -> void:
 			for n in steps:
 				var b: String = g.lib.board_of(g.expected())
 				seen[g.expected()] = true
-				put(g, b, Vector2(1540, 560), randf() * 360.0, 0.8)
+				put(g, b, g.PAD, randf() * 360.0, 0.8)
 				run_for(g, 0.5)
 				var last: bool = n == steps - 1
 				check(g.state == ("celebrate" if last else "wait"), "right board, round %d level %d, is %s" % [rnd, lv + 1, g.state])
@@ -231,7 +284,7 @@ func test_game() -> void:
 		files.append("pip_%s_4x4.png" % mood)
 	for f in files:
 		Art._cache[f] = pic
-	put(g, "A", Vector2(1540, 560))
+	put(g, "A", g.PAD)
 	run_for(g, 0.5)
 	for st in ["menu", "wait", "wrong", "celebrate", "done"]:
 		g.state = st

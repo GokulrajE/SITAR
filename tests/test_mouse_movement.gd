@@ -19,7 +19,8 @@ func run_tests() -> void:
 	for sound in game.find_children("*Sound", "AudioStreamPlayer", true, false): sound.stream = null
 	await process_frame
 	await process_frame
-	game.start_session()
+	game.shell.auto_fullscreen = false
+	game.shell.begin()
 	var camera := root.get_camera_3d()
 	click_at(camera.unproject_position(Vector3(4, 0, 2)))
 	assert(game.has_move_target)
@@ -34,8 +35,9 @@ func run_tests() -> void:
 	assert(game.has_move_target and game.move_target.distance_to(Vector3(-3, 0, 1)) < 0.01)
 	game.reset_input()
 	# Essential HUD buttons consume input rather than move Nova.
-	click_at(Vector2(1770, 65))
-	assert(not game.has_move_target)
+	click_at(Vector2(1846, 68))
+	assert(not game.has_move_target and AudioServer.is_bus_mute(0))
+	AudioServer.set_bus_mute(0, false)
 	click_at(camera.unproject_position(Vector3(4, 0, 2)), MOUSE_BUTTON_RIGHT)
 	assert(game.cooldown == 0 and not game.has_move_target)
 	click_at(camera.unproject_position(Vector3(4, 0, 2)), MOUSE_BUTTON_LEFT, true)

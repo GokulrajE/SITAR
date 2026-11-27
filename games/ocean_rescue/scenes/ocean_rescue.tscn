@@ -5,7 +5,6 @@
 [ext_resource type="PackedScene" path="res://games/ocean_rescue/scenes/3d/boat.tscn" id="boat"]
 [ext_resource type="PackedScene" path="res://games/ocean_rescue/scenes/3d/reef_life.tscn" id="reef_life"]
 [ext_resource type="PackedScene" path="res://games/ocean_rescue/scenes/3d/island.tscn" id="island"]
-[ext_resource type="PackedScene" path="res://scenes/ui/display_controls.tscn" id="display"]
 [ext_resource type="AudioStream" path="res://assets/audio/confirmation_001.ogg" id="collect"]
 [ext_resource type="AudioStream" path="res://assets/audio/select_001.ogg" id="celebrate"]
 [ext_resource type="AudioStream" path="res://assets/audio/click_001.ogg" id="bump"]
@@ -212,107 +211,6 @@ expand_mode = 1
 stretch_mode = 6
 mouse_filter = 2
 
-[node name="SetupPanel" type="Panel" parent="Setup"]
-unique_name_in_owner = true
-offset_left = 64.0
-offset_top = 100.0
-offset_right = 674.0
-offset_bottom = 984.0
-theme_override_styles/panel = SubResource("menu_card")
-
-[node name="Eyebrow" type="Label" parent="Setup"]
-unique_name_in_owner = true
-offset_left = 108.0
-offset_top = 135.0
-offset_right = 618.0
-offset_bottom = 175.0
-text = "EXPLORE  /  FOCUS  /  RESTORE"
-mouse_filter = 2
-theme_override_font_sizes/font_size = 18
-horizontal_alignment = 0
-theme_override_colors/font_color = Color(0.6,1,0.88,1)
-
-[node name="Title" type="Label" parent="Setup"]
-unique_name_in_owner = true
-offset_left = 104.0
-offset_top = 200.0
-offset_right = 624.0
-offset_bottom = 370.0
-text = "Ocean\nRescue"
-mouse_filter = 2
-theme_override_font_sizes/font_size = 74
-horizontal_alignment = 0
-
-[node name="Briefing" type="Label" parent="Setup"]
-unique_name_in_owner = true
-offset_left = 108.0
-offset_top = 400.0
-offset_right = 608.0
-offset_bottom = 530.0
-text = "A little care. A cleaner sea.\n\nDrag to steer. Collect litter for +100.\nNavigate around the orange buoys."
-mouse_filter = 2
-theme_override_font_sizes/font_size = 23
-horizontal_alignment = 0
-autowrap_mode = 3
-
-[node name="Level" type="OptionButton" parent="Setup"]
-unique_name_in_owner = true
-offset_left = 108.0
-offset_top = 575.0
-offset_right = 630.0
-offset_bottom = 641.0
-item_count = 3
-popup/item_0/text = "Level 1 · Calm lagoon"
-popup/item_1/text = "Level 2 · Island trail"
-popup/item_2/text = "Level 3 · Reef ranger"
-
-[node name="Goal" type="Label" parent="Setup"]
-unique_name_in_owner = true
-offset_left = 108.0
-offset_top = 653.0
-offset_right = 630.0
-offset_bottom = 698.0
-text = "8 items · 90 seconds"
-mouse_filter = 2
-theme_override_font_sizes/font_size = 20
-horizontal_alignment = 0
-
-[node name="Start" type="Button" parent="Setup"]
-unique_name_in_owner = true
-offset_left = 108.0
-offset_top = 720.0
-offset_right = 630.0
-offset_bottom = 796.0
-text = "Set sail   →"
-
-
-theme_override_styles/normal = SubResource("action_gold")
-
-theme_override_styles/hover = SubResource("action_hover")
-
-theme_override_styles/pressed = SubResource("action_gold")
-
-theme_override_colors/font_color = Color(0.035,0.15,0.18,1)
-
-theme_override_colors/font_hover_color = Color(0.035,0.15,0.18,1)
-
-theme_override_colors/font_pressed_color = Color(0.035,0.15,0.18,1)
-
-[node name="Home" type="Button" parent="Setup"]
-unique_name_in_owner = true
-offset_left = 108.0
-offset_top = 811.0
-offset_right = 630.0
-offset_bottom = 869.0
-text = "←  All games"
-
-
-[node name="Display" parent="Setup" instance=ExtResource("display")]
-offset_left = 108.0
-offset_top = 900.0
-offset_right = 630.0
-offset_bottom = 956.0
-
 [node name="HUD" type="Control" parent="."]
 unique_name_in_owner = true
 anchor_right = 1.0
@@ -322,54 +220,18 @@ visible = false
 
 [node name="ScorePill" type="Panel" parent="HUD"]
 offset_left = 32.0
-offset_top = 28.0
+offset_top = 978.0
 offset_right = 232.0
-offset_bottom = 100.0
-mouse_filter = 2
-theme_override_styles/panel = SubResource("hud_glass")
-
-[node name="TimePill" type="Panel" parent="HUD"]
-offset_left = 248.0
-offset_top = 28.0
-offset_right = 422.0
-offset_bottom = 100.0
-mouse_filter = 2
-theme_override_styles/panel = SubResource("hud_glass")
-
-[node name="CollectionPill" type="Panel" parent="HUD"]
-offset_left = 438.0
-offset_top = 28.0
-offset_right = 648.0
-offset_bottom = 100.0
+offset_bottom = 1050.0
 mouse_filter = 2
 theme_override_styles/panel = SubResource("hud_glass")
 
 [node name="ScoreIcon" type="TextureRect" parent="HUD"]
 offset_left = 48.0
-offset_top = 43.0
+offset_top = 993.0
 offset_right = 90.0
-offset_bottom = 85.0
+offset_bottom = 1035.0
 texture = ExtResource("icon_star")
-expand_mode = 1
-stretch_mode = 5
-mouse_filter = 2
-
-[node name="TimeIcon" type="TextureRect" parent="HUD"]
-offset_left = 264.0
-offset_top = 43.0
-offset_right = 306.0
-offset_bottom = 85.0
-texture = ExtResource("icon_clock")
-expand_mode = 1
-stretch_mode = 5
-mouse_filter = 2
-
-[node name="CollectionIcon" type="TextureRect" parent="HUD"]
-offset_left = 454.0
-offset_top = 43.0
-offset_right = 496.0
-offset_bottom = 85.0
-texture = ExtResource("icon_bottle")
 expand_mode = 1
 stretch_mode = 5
 mouse_filter = 2
@@ -377,9 +239,9 @@ mouse_filter = 2
 [node name="Score" type="Label" parent="HUD"]
 unique_name_in_owner = true
 offset_left = 101.0
-offset_top = 34.0
+offset_top = 984.0
 offset_right = 216.0
-offset_bottom = 90.0
+offset_bottom = 1040.0
 text = "0000"
 mouse_filter = 2
 theme_override_font_sizes/font_size = 32
@@ -389,163 +251,6 @@ theme_override_colors/font_outline_color = Color(0.02,0.2,0.28,1)
 vertical_alignment = 1
 
 horizontal_alignment = 0
-
-[node name="Time" type="Label" parent="HUD"]
-unique_name_in_owner = true
-offset_left = 316.0
-offset_top = 34.0
-offset_right = 413.0
-offset_bottom = 90.0
-text = "90s"
-mouse_filter = 2
-theme_override_font_sizes/font_size = 32
-theme_override_constants/outline_size = 0
-theme_override_colors/font_outline_color = Color(0.02,0.2,0.28,1)
-
-vertical_alignment = 1
-
-horizontal_alignment = 0
-
-[node name="Collected" type="Label" parent="HUD"]
-unique_name_in_owner = true
-offset_left = 506.0
-offset_top = 34.0
-offset_right = 633.0
-offset_bottom = 90.0
-text = "0 / 8 collected"
-mouse_filter = 2
-theme_override_font_sizes/font_size = 32
-horizontal_alignment = 0
-theme_override_constants/outline_size = 0
-theme_override_colors/font_outline_color = Color(0.02,0.2,0.28,1)
-
-vertical_alignment = 1
-
-[node name="Progress" type="ProgressBar" parent="HUD"]
-unique_name_in_owner = true
-offset_left = 466.0
-offset_top = 90.0
-offset_right = 620.0
-offset_bottom = 94.0
-mouse_filter = 2
-show_percentage = false
-theme_override_styles/background = SubResource("track")
-theme_override_styles/fill = SubResource("fill")
-
-[node name="Pause" type="Button" parent="HUD"]
-unique_name_in_owner = true
-offset_left = 1632.0
-offset_top = 28.0
-offset_right = 1704.0
-offset_bottom = 100.0
-text = ""
-
-
-icon = ExtResource("icon_pause")
-
-expand_icon = true
-
-theme_override_constants/icon_max_width = 32
-
-theme_override_styles/normal = SubResource("hud_glass")
-
-tooltip_text = "Pause"
-
-[node name="Stop" type="Button" parent="HUD"]
-unique_name_in_owner = true
-offset_left = 1720.0
-offset_top = 28.0
-offset_right = 1792.0
-offset_bottom = 100.0
-text = ""
-
-
-icon = ExtResource("icon_stop")
-
-expand_icon = true
-
-theme_override_constants/icon_max_width = 32
-
-theme_override_styles/normal = SubResource("hud_glass")
-
-tooltip_text = "Stop"
-
-[node name="Mute" type="Button" parent="HUD"]
-unique_name_in_owner = true
-offset_left = 1808.0
-offset_top = 28.0
-offset_right = 1880.0
-offset_bottom = 100.0
-text = ""
-
-
-icon = ExtResource("icon_sound")
-
-expand_icon = true
-
-theme_override_constants/icon_max_width = 32
-
-theme_override_styles/normal = SubResource("hud_glass")
-
-tooltip_text = "Toggle sound (highlighted when muted)"
-
-toggle_mode = true
-
-[node name="Overlay" type="Panel" parent="."]
-unique_name_in_owner = true
-visible = false
-anchor_right = 1.0
-anchor_bottom = 1.0
-theme_override_styles/panel = SubResource("panel")
-
-[node name="ResultTitle" type="Label" parent="Overlay"]
-unique_name_in_owner = true
-offset_left = 450.0
-offset_top = 250.0
-offset_right = 1470.0
-offset_bottom = 350.0
-text = "A cleaner lagoon!"
-mouse_filter = 2
-theme_override_font_sizes/font_size = 56
-horizontal_alignment = 1
-
-[node name="ResultText" type="Label" parent="Overlay"]
-unique_name_in_owner = true
-offset_left = 450.0
-offset_top = 380.0
-offset_right = 1470.0
-offset_bottom = 560.0
-text = ""
-mouse_filter = 2
-theme_override_font_sizes/font_size = 28
-horizontal_alignment = 1
-
-[node name="Next" type="Button" parent="Overlay"]
-unique_name_in_owner = true
-offset_left = 660.0
-offset_top = 580.0
-offset_right = 1260.0
-offset_bottom = 650.0
-text = "Next level"
-
-
-[node name="Resume" type="Button" parent="Overlay"]
-unique_name_in_owner = true
-offset_left = 660.0
-offset_top = 670.0
-offset_right = 1260.0
-offset_bottom = 740.0
-text = "Play again"
-
-
-[node name="Back" type="Button" parent="Overlay"]
-unique_name_in_owner = true
-offset_left = 660.0
-offset_top = 760.0
-offset_right = 1260.0
-offset_bottom = 825.0
-text = "Back to setup"
-
 
 [node name="CollectSound" type="AudioStreamPlayer" parent="."]
 unique_name_in_owner = true
