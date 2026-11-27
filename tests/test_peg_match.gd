@@ -16,6 +16,7 @@ const BOARDS := {
 	"B": [Vector2(22.5, 20.0), Vector2(-30.0, -3.0), Vector2(16.5, -22.5)],
 	"C": [Vector2(4.0, -30.0), Vector2(-14.5, 10.0), Vector2(13.5, 25.5)],
 }
+const SPOT := Vector2(780, 550)
 var ids := 100
 var down: Dictionary = {}
 var shots := ""
@@ -71,6 +72,14 @@ func open(path: String):
 	for i in 3:
 		await process_frame
 	return current_scene
+
+func tap(s, at: Vector2) -> void:
+	s.tracker._down(7, at)
+	s.tracker.update(0.05)
+	s.tracker._up(7)
+
+func wait(secs: float) -> void:
+	await create_timer(secs).timeout
 
 func run() -> void:
 	var args := OS.get_cmdline_user_args()
@@ -161,18 +170,36 @@ func test_setup() -> void:
 	s.lib.clear()
 	await shot(s, "setup_empty")
 	for pair in [["A", "cup"], ["B", "cone"], ["C", "square"], ["C", "cylinder"]]:
-		put(s, pair[0], s.PAD + Vector2(20, -10), randf() * 360.0, 0.5)
+		put(s, pair[0], SPOT + Vector2(20, -10), randf() * 360.0, 0.5)
 		setup_step(s, 0.3)
 		check(s.captured.is_empty(), "legs are captured only once they stand still")
 		setup_step(s, 0.6)
 		check(s.captured.size() == 3, "set-up captures the board's three legs")
 		var at: Vector2 = s.icon_pos(Library.OBJECTS.keys().find(pair[1]))
-		s.tracker._down(7, at)
-		s.tracker.update(0.05)
-		s.tracker._up(7)
-		check(s.lib.object_of(pair[0]) == pair[1], "recorded %s as slot %s: %s" % [pair[1], pair[0], s.lib.assigned])
+		check(s.menu.is_open, "capturing a board opens the choices")
+		tap(s, Vector2(150, 300))                         # empty glass
+		check(not s.menu.is_open, "a tap elsewhere closes the menu")
+		tap(s, s.menu.trigger_pos())
+		check(s.menu.is_open, "+ reopens the menu")
 		if pair[1] == "square":
-			await shot(s, "setup_ring")
+			await wait(0.12)
+			await shot(s, "menu_opening")
+			await wait(1.0)
+			s.menu._mouse = at
+			await wait(0.3)
+			await shot(s, "menu_open")
+		tap(s, at)
+		check(not s.menu.is_open, "choosing closes the menu")
+		if pair[1] == "square":
+			await wait(0.15)
+			await shot(s, "menu_picked")
+			await wait(0.35)
+			await shot(s, "menu_flying")
+			await wait(0.5)
+			await shot(s, "menu_landed")
+		check(s.lib.object_of(pair[0]) == pair[1], "recorded %s as slot %s: %s" % [pair[1], pair[0], s.lib.assigned])
+		s._sync_menu()
+		check(not s.menu.is_open, "the menu stays closed after choosing")
 		lift(s, pair[0])
 		setup_step(s, 0.6)
 		check(s.captured.is_empty(), "lifting clears the capture")
@@ -182,6 +209,56 @@ func test_setup() -> void:
 	setup_step(s, 0.6)
 	check(s.tracker.present.has("B"), "recorded board is recognised")
 	lift(s, "B")
+	setup_step(s, 0.6)
+	# Anywhere on the glass, with a finger resting elsewhere: the board is read,
+	# every choice is on screen and none is hidden under the board.
+	var tried := 0
+	for x in range(80, 1450, 170):
+		for y in range(180, 1000, 135):
+			s.tracker._down(90, Vector2(100 if x > 700 else 1450, 600))
+			put(s, "A", Vector2(x, y), 33.0)
+			setup_step(s, 0.8)
+			s._sync_menu()
+			var ok: bool = s.captured.size() == 3 and s.menu.is_open
+			if ok:
+				for disc in s.menu.footprint(s.ring_radius()):
+					var p: Vector2 = s.spot + disc[0]
+					ok = ok and Rect2(0, 110, 1520, 880).grow(-disc[1]).has_point(p) and p.distance_to(s.board_centre()) > disc[1] + s.tracker.px(40)
+			check(ok, "choices usable with the board at %d,%d" % [x, y])
+			tried += 1
+			if x == 80 and y == 990 - 135:
+				await wait(1.0)
+				await shot(s, "corner")
+			lift(s, "A")
+			setup_step(s, 0.6)
+			s._sync_menu()
+	s.tracker._up(90)
+	print("set-up: board tried in ", tried, " places")
+	# A refused choice keeps the menu open.
+	var close_at := legs("A", SPOT, 0.0)
+	close_at[0] += Vector2(14, 0)                          # too like board A
+	for i in 3:
+		s.tracker._down(60 + i, close_at[i])
+	setup_step(s, 0.9)
+	var before: Dictionary = s.lib.assigned.duplicate()
+	tap(s, s.icon_pos(Library.OBJECTS.keys().find("square")))
+	check(s.lib.assigned == before and s.menu.is_open, "a refused choice keeps the menu open")
+	await wait(0.15)
+	await shot(s, "menu_refused")
+	for i in 3:
+		s.tracker._up(60 + i)
+	setup_step(s, 0.6)
+	# The ring's clear button forgets the standing board.
+	put(s, "C", SPOT)
+	setup_step(s, 0.9)
+	s._sync_menu()
+	await wait(1.0)
+	await shot(s, "clear_option")
+	check(s.menu.can_clear(), "clear is offered for a recorded board")
+	tap(s, s.menu.clear_pos())
+	check(s.lib.object_of("C") == "" and s.menu.is_open, "ring clear forgets the board and stays open")
+	lift(s, "C")
+	setup_step(s, 0.6)
 	# Tapping a card removes that recording; Start fresh removes all.
 	var touch := InputEventScreenTouch.new()
 	touch.pressed = true
